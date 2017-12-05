@@ -1,0 +1,9 @@
+\NeedsTeXFormat{LaTeX2e}[2011/06/27]
+\ProvidesPackage{thesissetup}[2017/11/23 v0.01 LaTeX package to setup thesis]
+
+\XeTeXlinebreaklocale "ja"
+\RequirePackage{fontspec}
+\setsansfont{Noto Sans}
+\newfontfamily\jafont[]{TakaoMincho}
+\newcommand*{\textja}[1]{{\jafont #1}}
+
