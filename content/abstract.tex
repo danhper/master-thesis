@@ -1,8 +1,40 @@
 \begin{eabstract}
-  This is my abstract
+Clone detection is the task of detecting similar code fragments across
+multiple programs. It has various applications such as code search,
+refactoring, or copyright infringement detection and is also used as a
+foundation for other applications such as malware detection. While clone
+detection across programs written in the same programming language has been
+studied extensively in the literature, the task of detecting clones across
+multiple programming languages is not covered as well, and many approaches
+based on comparisons cannot be applied in its context. With the proliferation
+of programming languages - by simply having a native frontend for each major
+platform, a service would already be using at least three programming
+languages - the task of detecting clone across programming languages is
+becoming more and more important.
+
+In this thesis, we propose a clone detection method based on supervised
+machine learning able to detect clone across programming languages. We first
+describe how to preprocess source code in order to be able to feed it to our
+machine learning model. Then, we present a neural network model capable of
+detecting code clones across programming languages and present a dataset
+containing more than 50000 code fragments written in Python and Java,
+that we use to feed our neural network. Finally, we show that our method can
+detect code clones written in different programming languages with a high accuracy.
 \end{eabstract}
 
-
 \begin{jabstract}
-  アブストラクトです。
+クローン検出は複数のプログラムから同じようなソースコードを探し出すタスクである.
+コード検索, リファクタリング, 著作権違反検出などのような多くの応用を持っており,
+マルウェア検出などの基礎技術としても利用されている. 同一の言語でのクローン検出が
+よく研究されているものの, 複数の言語間でのクローン検出を行う研究がまだ少ない.
+一方, 複数のプログラミングを使うことが一般的になってきている. １つのプロジェク
+トでも, メージャーなプラットフォームのネィティブアプリケーションを持つだけで
+プログラミング言語を３つ使用ことになる. よって, 言語間でのクローン検出も重要に
+なってきている.
+
+本研究では, 教師あり機械学習を用いた言語間でのクローンを検出する方法を提案する.
+まず, ソースコードを機械学習のアルゴリズムで使えるようにするための前処理の手順
+を説明する. 続いて, 言語間でのクローン検出が行えるモデルを紹介する. このモデル
+に与えるために作成したJavaとPythonの約５万ファイルのデータセットについて説明する.
+最後に, 提案手法を用いて高い精度でクローン検出が行えたことを示す.
 \end{jabstract}
