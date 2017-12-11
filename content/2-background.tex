@@ -1,10 +1,10 @@
 \chapter{Background}
-\section{Source code representation}
+\section{\label{sec:code-representation} Source code representation}
 The way we represent source code is very important in code clone detection,
 as it affects greatly the algorithms that may be used to detect clones.k
 In this section, we will explain the different ways in which source codes
 can be represented.
-\subsection{String representation}
+\subsection{\label{ssec:string-representation} String representation}
 The most common representation for a program is its string representation. It is
 the representation that developer actually uses when editing a program, and
 is therefore the easiest to obtain, as it is simply the raw program.
@@ -19,7 +19,7 @@ The string representation of the above program would simply be
 \begin{lstlisting}
 "int add(int a, int b) {\nreturn a + b;\n}"
 \end{lstlisting}
-\subsection{Token representation}
+\subsection{\label{ssec:token-representation}Token representation}
 While the string representation is an array of characters, the token
 representation is an array of strings where each string in the array is a token
 of the program. It is typically the representation that a lexer would return
@@ -32,7 +32,7 @@ token representation.
 Token representation may, or may not keep whitespaces and other formatting
 characters, but except for programming languages where whitespaces are significant,
 such as Python, they are usually not included in the output.
-\subsection{Tree representation}
+\subsection{\label{ssec:tree-representation}Tree representation}
 There are two main tree representations for programs: concrete syntax trees and
 abstract syntax trees. We will describe the two different type of trees and
 there differences.
@@ -68,8 +68,8 @@ Figure~\ref{fig:add-ast} shows the AST for Listing~\ref{lis:add}.
 \section{Code clone fundamentals}
 In this section, we will first describe the different types of code clones
 that appear in the literature, and that we will be using in this thesis.
-We will then quickly view the different approaches to code clone detection,
-and briefly discuss their strengths and weaknesses.
+We will then view the different approaches to code clone detection that can be
+found in the literature.
 \subsection{Types of code clones}
 It is important to define what is implied when two code fragments are
 defined as clones. In the literature, code clones are usually
@@ -171,6 +171,40 @@ should be taken into account when deciding if two code fragments are, or not,
 type IV code clones. In this thesis, we will therefore assume that as long
 as two code fragments implement same functionality, they are type IV clones.
 \subsection{Approaches to clone detection}
+There exist various methods to clone detection, which take advantage of the
+different source code representations described in
+section~\ref{sec:code-representation}. We will present the major
+approaches found in the literature.
+\subsubsection{Text-based detection}
+Text-based clone detection are based on the string representation of the program
+source code described in~\ref{ssec:string-representation}.
+While some text-based techniques use the source code almost as is and perform
+either line-by-line or global string comparisons to find clones, some techniques
+do apply some preprocessing steps \cite{Baker92aprogram}, such as removing white
+spaces, before actually passing the source code to a string matching algorithm.
+\subsubsection{Token-based detection}
+Token-based detection techniques use the token representation of the program
+described in~\ref{ssec:token-representation}. Token-based approach are usually
+more robust to formatting and layout changes compared to text-based approaches.
+Some token-based clone detection tools, such as CCFinder
+\cite{Kamiya:2002:CMT:636188.636191} first normalize the tokens and replace all
+application specific tokens such as user-defined identifiers. On the other hand,
+other tools such as SourcererCC \cite{Sajnani:2016:SSC:2884781.2884877} keep
+this information and use it to detect if multiple code fragments are clones or
+not.
+\subsubsection{Tree-based detection}
+Tree-based techniques make use of the AST representation of the program
+described in \ref{ssec:tree-representation}. These techniques first use a parser
+to generate the AST of a program, then the ASTs are searched for similar
+sub-trees and similar sub-trees are marked as clones. Searching for similar
+sub-trees using normal tree comparisons algorithms takes at least
+$\mathcal{O}(n^3)$ \cite{Baxter:1998:CDU:850947.853341}, where $n$ is the number
+of nodes. Industrial software can have millions of line of codes, and therefore
+$n$ could be in the order of 10 million. To avoid this issue, many tree-based
+clone detection techniques \cite{Baxter:1998:CDU:850947.853341,
+  Jiang:2007:DSA:1248820.1248843} use hash functions on sub-tress to find clones
+more efficiently. The idea is to assign each sub-tree a hash-value, and use this
+value, usually with bucketing techniques, to quickly search for code clones.
 \section{Machine learning fundamentals}
 \subsection{Skipgram model}
 \subsection{Recurrent Neural Networks}
