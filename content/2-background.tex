@@ -198,13 +198,78 @@ described in \ref{ssec:tree-representation}. These techniques first use a parser
 to generate the AST of a program, then the ASTs are searched for similar
 sub-trees and similar sub-trees are marked as clones. Searching for similar
 sub-trees using normal tree comparisons algorithms takes at least
-$\mathcal{O}(n^3)$ \cite{Baxter:1998:CDU:850947.853341}, where $n$ is the number
-of nodes. Industrial software can have millions of line of codes, and therefore
-$n$ could be in the order of 10 million. To avoid this issue, many tree-based
-clone detection techniques \cite{Baxter:1998:CDU:850947.853341,
+$\mathcal{O}\left(n^3\right)$ \cite{Baxter:1998:CDU:850947.853341}, where $n$ is
+the number of nodes. Industrial software can have millions of line of codes, and
+therefore $n$ could be in the order of 10 million. To avoid this issue, many
+tree-based clone detection techniques \cite{Baxter:1998:CDU:850947.853341,
   Jiang:2007:DSA:1248820.1248843} use hash functions on sub-tress to find clones
 more efficiently. The idea is to assign each sub-tree a hash-value, and use this
 value, usually with bucketing techniques, to quickly search for code clones.
 \section{Machine learning fundamentals}
+In this section, we will present the basics of machine learning that will be
+needed in order to understand our approach. We will first give a general
+overview of the learning process of neural networks, then we will describe
+the two models we are using as a base to our work in this thesis.
+The first model will present is the skipgram model, which is typically used in
+natural language processing (NLP) to assign a vector representation to a word.
+Next, we will give an overview of recurrent neural networks (RNN), and in
+particular long-short term memory (LSTM) networks, which are extensively used in
+NLP to assign a vector representation to a sentence.
+\subsection{Neural networks}
+In this subsection, we will show how are neural network composed, and what is
+the normal process to train them. Although most of what we explain here apply to
+most machine learning algorithms, we will focus on feed-forward neural networks.
+\subsubsection{Computations of a neural network}
+A neural network \cite{Rojas:1996:NNS:235222} is usually composed of an input
+layer, which is where the input data is fed, one or more hidden layers, and an
+output layer, which represents the value outputted by the neural network.
+Each layer in the network is composed by units, also sometimes referred to as
+neurons, which are the computing elements of the network. Each unit is usually
+composed of two different parts: a first function $f$, which reduces a vector
+into a single scalar value, and a function $g$, called ``activation function''
+which transforms the result of $f$ and produces the unit output. This function
+is generally non-linear, otherwise the model ends up to be composed of only
+linear function and becomes as well a linear function.
+A unit of a neural network is illustrated in figure \ref{fig:neuron}.
+\begin{figure}[tb]
+  \centering\input{diagrams/nn-unit}
+  \caption{\label{fig:neuron}Unit of a neural network}
+\end{figure}
+Each layer is connected to the next one by using the output of each unit of the
+previous layer as an input for each unit of the next layer. This connection is
+illustrated in figure \ref{fig:neural-net}.
+\begin{figure}[tb]
+  \centering\input{diagrams/neural-net}
+  \caption{\label{fig:neural-net}Neural network}
+\end{figure}
+
+The function $f$ is a matrix multiplication where all the weights of this matrix
+are parameters of the neural network model. Matrix weights are shared by all the
+units in a layer. In figure \ref{fig:neural-net}, given $W^{(1)} \in
+mathbb{R}^{5\times 3}$ is the matrix weights of the hidden layer, $W_{mn}$ is
+the value at row $m$ and column $n$ in this matrix, $g_1$ is the activation
+function of the hidden layer, and $a_1, a_2$ and $a_3$ the output of each unit
+in the layer, we will have the following.
+\begin{align*}
+  a_1 &= g\left( W_{11}^{(1)}x_1 + \cdots + W_{51}^{(1)}x_5 \right)\\
+  a_2 &= g\left( W_{12}^{(1)}x_1 + \cdots + W_{52}^{(1)}x_5 \right)\\
+  a_3 &= g\left(W_{13}^{(1)}x_1 + \cdots + W_{53}^{(1)}x_5 \right)
+\end{align*}
+In practice, given $x = (x_1, \cdots, x_5)$ and $a = (a_1, a_2, a_3)$, the above
+is usually computed as follow, with a single matrix multiplication and a
+vectorized implementation of the function $g$.
+
+\[ a = g\left(  x W^{(1)}  \right) \]
+
+Finally, given $W^{(2)} \in \mathbb{R}^{3\times 1}$ the weights of the output
+layer and $g_2$ the activation of the output layer, the output $o$ of the neural
+network will be computed as follow.
+
+\begin{equation}
+  o = g_2\left( g_1\left( x W^{(1)} \right) W^{(2)} \right)
+\end{equation}
+\subsubsection{Training of a neural network}
 \subsection{Skipgram model}
+As mentioned above, skipgram is used to assign a vector in $\mathbb{R}^d$ to a
+word, where $d$ is the number of dimensions wanted for each word vector.
 \subsection{Recurrent Neural Networks}

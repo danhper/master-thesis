@@ -1,0 +1,15 @@
+% adapted from https://tex.stackexchange.com/questions/365519/draw-single-neural-unit-using-tizk
+\begin{tikzpicture}[node distance = 4mm and 12mm,
+                    start chain = going below,
+                    arro/.style = {-Latex},
+                    bloque/.style = {inner sep=1pt, align=right, on chain}]
+
+  \foreach \i [count=\j] in {1, 2, 3}
+    \node[bloque] (in-\j) {$x_{\i}$};
+  \node (out) [circle, draw, minimum size=6mm, right=of $(in-2)!0!(in-3)$] {};
+
+  \foreach \i in {1,...,3}
+    \draw[arro] (in-\i) -- (out);
+  \coordinate[right=of out] (output);
+  \draw[arro] (out) -- (output) node[right] {$g\left(f(x_1,\cdots,x_n)\right)$};
+\end{tikzpicture}
