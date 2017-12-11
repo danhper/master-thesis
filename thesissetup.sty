@@ -1,6 +1,8 @@
 \NeedsTeXFormat{LaTeX2e}[2011/06/27]
 \ProvidesPackage{thesissetup}[2017/11/23 v0.01 LaTeX package to setup thesis]
 %
+\newcommand{\@builddir}{./build/}
+%
 \RequirePackage{fontspec}
 \setsansfont{Noto Sans}
 \setmonofont{Inconsolata}
@@ -8,6 +10,15 @@
 %
 \usepackage{enumitem}
 \usepackage{listings}
+\usepackage{graphicx}
+%
+\newcommand{\includedot}[2][scale=1]{
+  \makeatletter
+  \filename@parse{#2}
+  \immediate\write18{dot -Tps #2 -o \@builddir\filename@base.ps}
+  \includegraphics[#1]{\@builddir\filename@base.ps}
+  \makeatother
+}
 %
 \lstset{
   language=Java,

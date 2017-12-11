@@ -221,8 +221,11 @@ TSWLatexianTemp*
 
 # auto folder when using emacs and auctex
 /auto/*
+/.auto/*
 
 # expex forward references with \gathertags
 *-tags.tex
 
 # End of https://www.gitignore.io/api/latex
+
+/build/

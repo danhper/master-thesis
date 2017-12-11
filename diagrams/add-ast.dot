@@ -1,0 +1,22 @@
+digraph add_ast {
+  ordering=out;
+
+  int_0 [label="int"];
+  int_1 [label="int"];
+  int_2 [label="int"];
+  plus [label="+"];
+  param_a [label="a"];
+  param_b [label="b"];
+
+  add -> int_0;
+  add -> int_1;
+  add -> int_2;
+  add -> return;
+
+  int_1 -> param_a;
+  int_2 -> param_b;
+
+  return -> plus;
+  plus -> a;
+  plus -> b;
+}

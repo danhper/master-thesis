@@ -4,6 +4,67 @@ The way we represent source code is very important in code clone detection,
 as it affects greatly the algorithms that may be used to detect clones.k
 In this section, we will explain the different ways in which source codes
 can be represented.
+\subsection{String representation}
+The most common representation for a program is its string representation. It is
+the representation that developer actually uses when editing a program, and
+is therefore the easiest to obtain, as it is simply the raw program.
+Listing~\ref{lis:add} is a function taking two numbers as input and returning
+their sum.
+\begin{lstlisting}[caption=\lstinline{add} function,label=lis:add]
+int add(int a, int b) {
+  return a + b;
+}
+\end{lstlisting}
+The string representation of the above program would simply be
+\begin{lstlisting}
+"int add(int a, int b) {\nreturn a + b;\n}"
+\end{lstlisting}
+\subsection{Token representation}
+While the string representation is an array of characters, the token
+representation is an array of strings where each string in the array is a token
+of the program. It is typically the representation that a lexer would return
+while processing the source program. The above program would have the following
+token representation.
+\begin{lstlisting}
+["int", "add", "(", "int", "a", ",", "int", "b",
+ ")", "{", "return", "a", "+", "b", ";", "}"]
+\end{lstlisting}
+Token representation may, or may not keep whitespaces and other formatting
+characters, but except for programming languages where whitespaces are significant,
+such as Python, they are usually not included in the output.
+\subsection{Tree representation}
+There are two main tree representations for programs: concrete syntax trees and
+abstract syntax trees. We will describe the two different type of trees and
+there differences.
+\subsubsection{Concrete Syntax Trees}
+Concrete syntax trees are concrete in the sense that they keep all the syntactic
+tokens of the program, such as commas, semi-colons or parentheses. It therefore
+contains exactly the same tokens as the token representation, but the tokens
+are organized as a tree, where the root is usually the entry of the program,
+the nodes are usually statements or expressions and the leaves are identifiers
+or literals. Figure~\ref{fig:add-cst} shows how Listing~\ref{lis:add} would be
+represented as a concrete syntax tree.
+\begin{figure}[tb]
+  \begin{center}
+    \includedot[height=5cm]{./diagrams/add-cst.dot}
+    \caption{\label{fig:add-cst}Concrete Syntax Tree of \lstinline{add} function}
+  \end{center}
+\end{figure}
+\subsubsection{Abstract Syntax Trees}
+Abstract Syntax Trees (AST) are also a tree representation of the source code,
+but as opposed to the concrete syntax tree, they do not preserve the host
+language syntax, such as parentheses, and instead express these using the
+structure of the tree.
+AST are typically the what a parser returns when processing the source code, and
+are one of the most common representation for various tasks on programs,
+including clone detection.
+Figure~\ref{fig:add-ast} shows the AST for Listing~\ref{lis:add}.
+\begin{figure}[tb]
+  \begin{center}
+    \includedot[height=5cm]{./diagrams/add-ast.dot}
+    \caption{\label{fig:add-ast}Abstract Syntax Tree of \lstinline{add} function}
+  \end{center}
+\end{figure}
 \section{Code clone fundamentals}
 In this section, we will first describe the different types of code clones
 that appear in the literature, and that we will be using in this thesis.
@@ -109,7 +170,6 @@ are no established convention to whether this kind of complexity changes
 should be taken into account when deciding if two code fragments are, or not,
 type IV code clones. In this thesis, we will therefore assume that as long
 as two code fragments implement same functionality, they are type IV clones.
-
 \subsection{Approaches to clone detection}
 \section{Machine learning fundamentals}
 \subsection{Skipgram model}
