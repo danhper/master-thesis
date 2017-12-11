@@ -1,9 +1,21 @@
 \NeedsTeXFormat{LaTeX2e}[2011/06/27]
 \ProvidesPackage{thesissetup}[2017/11/23 v0.01 LaTeX package to setup thesis]
-
-\XeTeXlinebreaklocale "ja"
+%
 \RequirePackage{fontspec}
 \setsansfont{Noto Sans}
-\newfontfamily\jafont[]{TakaoMincho}
-\newcommand*{\textja}[1]{{\jafont #1}}
-
+\setmonofont{Inconsolata}
+\newfontfamily\jafont{TakaoMincho}
+%
+\usepackage{enumitem}
+\usepackage{listings}
+%
+\lstset{
+  language=Java,
+  basicstyle=\ttfamily,
+  captionpos=b,
+  frame=tb,
+  numbers=left,
+  xleftmargin=2em,
+  framexleftmargin=2em,
+  numbersep=1em
+}

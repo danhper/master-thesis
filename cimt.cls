@@ -71,8 +71,12 @@
 % custom setup
 \RequirePackage{thesissetup}
 
+\XeTeXlinebreaklocale "ja"
+
+\setcounter{tocdepth}{1}
 \AtBeginDocument{\addtocontents{toc}{\protect\thispagestyle{plainhead}}}
 \newcommand{\postchaptername}{\if@english\else 章\fi}
+\newcommand{\refname}{\if@english References\else 参考文献\fi}
 \newcommand{\@chappos}{\postchaptername}
 \newdimen\@lnumwidth
 
