@@ -1,24 +1,18 @@
 \begin{eabstract}
-Clone detection is the task of detecting similar code fragments across
-multiple programs. It has various applications such as code search,
-refactoring, or copyright infringement detection and is also used as a
-foundation for other applications such as malware detection. While clone
-detection across programs written in the same programming language has been
-studied extensively in the literature, the task of detecting clones across
-multiple programming languages is not covered as well, and many approaches
-based on comparisons cannot be applied. With the proliferation
-of programming languages, the task of detecting clone across programming
-languages is becoming more and more important.
-
-In this thesis, we propose a clone detection method based on supervised
-machine learning able to detect clone across programming languages. We first
-describe how to preprocess source code in order to be able to feed it to our
-machine learning model. Then, we present a neural network model capable of
-detecting code clones across programming languages and present a dataset
-containing more than 50000 code fragments written in Python and Java,
-that we use to feed our neural network. Finally, we show that our method can
-detect code clones written in different programming languages with a high
-accuracy.
+While clone detection across programs written in the same programming language
+has been studied extensively in the literature, the task of detecting clones
+across multiple programming languages is not covered as well, and approaches
+based on comparison cannot be directly applied.
+In this thesis, we present a clone detection method based on supervised
+machine learning able to detect clone across programming languages.
+Our method uses an unsupervised learning approach to learn token-level vector
+representations and an LSTM-based neural network to predict if two code fragments
+are clones. To train our network, we present a cross-language code clone
+dataset --- which is to the best of our knowledge the first of its kind ---
+containing more than 50000 code fragments written in Python and Java.
+We show that our method can detect code clones between Python and Java with high
+accuracy. We also compare our method to state-of-the-art tools in
+single-language clone detection and show that we achieve similar accuracy.
 \end{eabstract}
 
 \begin{jabstract}
