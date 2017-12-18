@@ -131,7 +131,7 @@
     \def\@oddhead{\hbox to \textwidth{\hfil%
         {\small\headfont\rightmark\qquad\thepage}}\hss}%
     \def\@evenhead{\hss \hbox to \textwidth{%
-        {\small\headfont\textbf{\thepage}\qquad\leftmark}\hfil}}%
+        {\small\headfont\thepage\qquad\leftmark}\hfil}}%
   \else
     \def\@oddhead{\hbox to \textwidth{\hfil%
         {\small\headfont\leftmark\qquad\thepage}}\hss}%
@@ -155,21 +155,14 @@
   \setcounter{page}\@ne
 }%
 {\newpage} %
-% \if@emptypagenombre
-% \renewcommand{\cleardoublepage}{%
-%   \clearpage%
-%   \if@twoside%
-%     \ifodd\c@page
-%       \iftdir\hbox{}\thispagestyle{plainhead}\newpage%
-%         \if@twocolumn\hbox{}\newpage\fi
-%       \fi%
-%     \else
-%       \ifydir\hbox{}\thispagestyle{plainhead}\newpage%
-%         \if@twocolumn\hbox{}\newpage\fi
-%       \fi%
-%     \fi
-%   \fi}
-% \fi
+\renewcommand{\cleardoublepage}{%
+  \clearpage%
+  \if@twoside%
+    \ifodd\c@page
+    \else
+      \null\thispagestyle{empty}\newpage
+    \fi
+  \fi}
 \newcommand*{\titlewidth}[1]{\gdef\title@width{#1}}% #1: タイトル幅
 \gdef\title@width{\hsize}
 \newcommand*{\jtitle}[1]{\gdef\@jtitle{#1}}% #1: タイトル(和文)
@@ -317,6 +310,7 @@
 \newenvironment{acknowledgements}{
   \def\@acktitle{\if@english Acknowledgements\else 謝辞\fi}
     \cleardoublepage
+    \thispagestyle{plainhead}
     \vspace*{50\p@}%
     {\parindent \z@ \raggedright \normalfont
     \interlinepenalty\@M
@@ -413,6 +407,7 @@
   \@clubpenalty\clubpenalty
   \widowpenalty4000%
   \sfcode`\.\@m}
+
   {\def\@noitemerr
     {\@latex@warning{Empty `thebibliography' environment}}%
   \endlist}

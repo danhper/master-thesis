@@ -246,7 +246,7 @@ illustrated in figure \ref{fig:neural-net}.
 The function $f$ is a matrix multiplication where all the weights of this matrix
 are parameters of the neural network model. Matrix weights are shared by all the
 units in a layer. In figure \ref{fig:neural-net}, given $W^{(1)} \in
-mathbb{R}^{5\times 3}$ is the matrix weights of the hidden layer, $W_{mn}$ is
+\mathbb{R}^{5\times 3}$ is the matrix weights of the hidden layer, $W_{mn}$ is
 the value at row $m$ and column $n$ in this matrix, $g_1$ is the activation
 function of the hidden layer, and $a_1, a_2$ and $a_3$ the output of each unit
 in the layer, we will have the following.
@@ -262,14 +262,64 @@ vectorized implementation of the function $g$.
 \[ a = g\left(  x W^{(1)}  \right) \]
 
 Finally, given $W^{(2)} \in \mathbb{R}^{3\times 1}$ the weights of the output
-layer and $g_2$ the activation of the output layer, the output $o$ of the neural
+layer and $g_2$ the activation of the output layer, the output $\hat{y}$ of the neural
 network will be computed as follow.
 
 \begin{equation}
-  o = g_2\left( g_1\left( x W^{(1)} \right) W^{(2)} \right)
+  \hat{y} = g_2\left( g_1\left( x W^{(1)} \right) W^{(2)} \right)
 \end{equation}
 \subsubsection{Training of a neural network}
+Training a neural network is searching for the optimal weights to approximate
+the function the neural network should learn. In the above example, this process
+consists in searching values for $W^{(1)}$ and $W^{(2)}$.
+The ``optimal'' weights of a neural network are defined with respect to a loss
+function representing how far the neural network output is from the expected
+correct answer, which is chosen depending on the task. Some common loss
+functions include mean squared error (MSE) \ref{eq:mse} or cross-entropy
+error (CEE) \ref{eq:cee}. Given a set of outputs $\hat{Y} = \{ \hat{y_1}, \cdots,
+\hat{y_n} \}$ and their respective expected values $Y = \{ y_1, \cdots,
+y_n \}$, the errors are defined as follow.
+
+\begin{align}
+  \label{eq:mse}MSE(\hat{Y}, Y) &= \frac{1}{n}\sum_{i=1}^{n} \left( y_i - \hat{y_i} \right)^2\\
+  \label{eq:cee}CEE(\hat{Y}, Y) &= \frac{1}{n}\sum_{i=1}^{n}
+                                  y_i\log\hat{y_i} + (1 - y_i)\log(1 - \hat{y_i})
+\end{align}
+Mean squared error is typically used when there is an order relation between the
+possible outputs while cross-entropy error is mostly used for classification
+tasks where the output can either be correct or incorrect.
+
+The most common way to update the weights of the neural network is called the
+back propagation algorithm, and consists in computing the derivatives of the
+loss function with respect to the weights of the model using the derivative
+chain rule, and to use these to update the weights with optimization methods
+such as the gradient descent. For example, given a loss function $L(W)$, to
+update $W^{(2)}$ in the above network, we would compute the error derivative
+$\partial L(W)/\partial W^{(2)}$, multiply the result with a learning
+rate $\alpha$, which is a hyper parameter of the model, and subtract the result
+from the current value of $W^{(2)}$. This process is usually repeated until the
+error converges.
 \subsection{Skipgram model}
-As mentioned above, skipgram is used to assign a vector in $\mathbb{R}^d$ to a
-word, where $d$ is the number of dimensions wanted for each word vector.
+As mentioned above, skipgram is used to assign a vector in $\mathbb{R}^d$, known
+as a word embedding, to a word, where $d$ is the number of dimensions wanted for
+each word vector. This algorithm has first been presented in 2013 by Mikolov \&
+al. \cite{DBLP:journals/corr/MikolovSCCD13} and is now used in many natural
+language processing tasks as one of the word2vec algorithms.
+
+To understand the motivations behind this algorithm, and other algorithms used
+to learn word embeddings, we must first understand how words used to be
+represented in natural language processing tasks. The most common approach was
+to use a finite vocabulary of size $|V|$, and to assign an identifier to each
+word in this vocabulary. For example, the word ``network'' could have the id
+$123$, and would be represented as a vector in $\{0,1\}^{|V|}$ where only index
+$123$ of the vector would be $1$ and all the other indexes would be $0$. This
+approach has two disadvantages: each word is represented by a very large and
+sparse vector, and the representation of each word do not have any semantic
+properties, so ``network'' and ``networks'' vector representations would not be
+any closer than ``network'' and any other word representation.
+
+The motivation behind skipgram is to address this issue by encoding each word
+as a vector in $\mathbb{R}^d$ where $d$ is not dependent of $|V|$, in such a way
+that each word embedding has some semantic so that, for example, similar words
+have a smaller euclidean distance in $\mathbb{R}^d$ than unrelated words.
 \subsection{Recurrent Neural Networks}
