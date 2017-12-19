@@ -321,5 +321,101 @@ any closer than ``network'' and any other word representation.
 The motivation behind skipgram is to address this issue by encoding each word
 as a vector in $\mathbb{R}^d$ where $d$ is not dependent of $|V|$, in such a way
 that each word embedding has some semantic so that, for example, similar words
-have a smaller euclidean distance in $\mathbb{R}^d$ than unrelated words.
+have a smaller distance in $\mathbb{R}^d$ than unrelated words.
+
+We will now describe how the skipgram algorithm actually computes the vector
+embeddings for each word. The algorithm works in an unsupervised fashion and
+usually uses a large amount of text written in the language of the vocabulary.
+For each sentence, a set of training samples composed of a ``context'' word and
+a ``target'' word. The context word is a word in the sentence, while the target
+word is a word around the context word, which is distant by at most a predefined
+window size. For example, if the window size is 2, and we have the following
+sentence,
+\begin{quotation}
+the quick brown fox jumped over the lazy dog
+\end{quotation}
+the target words for the context word ``fox'' will be ``quick'', ``brown'',
+``jumped'' and ``over''. These samples are used to train a neural network with a
+single hidden layer. The word embeddings are the hidden layer of the network and
+have dimension $\mathbb{R}^{|V|\times d}$. The network is trained by using the context
+word index to select a vector from the hidden layer weight and using a
+cross-entropy error function so that when the word is a target, the label should
+be $1$ and $0$ otherwise. Also this could be done by using a softmax output,
+this would require to compute softmax on all the vocabulary, which can be
+extremely large. To reduce the computation cost, a common approach is to used
+negative sampling. The negative sampling approach only computes the output for
+the target word, as well as a predetermined number of noise word --- word
+not in the window of the context --- and uses the sum of these errors to train
+the model.
 \subsection{Recurrent Neural Networks}
+While word embeddings work well to represent a single word, and to model the
+similarities between words, it is not enough to encode a whole sentence. There
+are many approaches to encode a sentence into a vector, and Recurrent Neural
+Networks (RNN) is one of them. The main idea of RNNs is to reuse the previous
+output as an input, as shown in \ref{fig:rnn}.
+\begin{figure}[tb]
+  \begin{center}
+    \includegraphics[width=8cm]{./images/rnn.pdf}
+    \caption{\label{fig:rnn}Unrolled Recurrent Neural Network}
+  \end{center}
+\end{figure}
+Typically, each $x_t$ is a word in the sentence, encoded either as a
+one-hot vector or as a word embedding. In its simplest form, a RNN will compute
+its output using equation \ref{eq:rnn}, where $W$, $U$ and $b$ are parameters of
+the model. The parameters are shared across all time steps.
+\begin{equation}
+  h_t = \tanh\left( W x_t + U h_{t - 1} + b \right) \label{eq:rnn}
+\end{equation}
+Although this models seems promising, it suffers a major issue --- it is very
+difficult to capture long-term dependencies because of the vanishing gradients
+issue \cite{pascanu2013difficulty}. When computing the gradients to
+back-propagate the error through the network, the gradient for $\partial x_t$
+with respect to $\partial x_k$, used in the chain rule, can be expanded as
+follow.
+\begin{equation}
+  \frac{\partial x_t}{\partial x_k} = \prod_{t \geq i > k} \frac{\partial x_i}{\partial x_{i-1}}
+  \label{eq:rnn-vanishing-gradients}
+\end{equation}
+The following term $\partial x_i/\partial x_{i-1}$ in equation
+\ref{eq:rnn-vanishing-gradients} is less then $1$ \cite{pascanu2013difficulty},
+which means that the value will converge to $0$, and error will not propagate
+all the way through the network, hence the vanishing gradient issue.
+
+To overcome this issue, Long Short-Term Memory (LSTM) networks
+\cite{Hochreiter:1997:LSM:1246443.1246450} are often used instead of vanilla RNN
+described above. Instead of equation \ref{eq:rnn}, LSTMs use equations
+\ref{eq:lstm-1} to \ref{eq:lstm-6} to compute the output value. All $W$, $U$ and
+$b$ in the equations are parameters of the model.
+\begin{align}
+  f_t &= \sigma \left( W^{(f)}x_t + U^{(f)}h_{t - 1} + b^{(f)} \right) \label{eq:lstm-1}\\
+  i_t &= \sigma \left( W^{(i)}x_t + U^{(i)}h_{t - 1} + b^{(i)} \right)\\
+  u_t &= \tanh \left( W^{(u)}x_t + U^{(u)}h_{t - 1} + b^{(u)} \right)\\
+  o_t &= \sigma \left( W^{(o)}x_t + U^{(o)}h_{t - 1} + b^{(o)} \right)\\
+  c_t &= i_t \odot u_t + f_t \odot c_{t - 1}\\
+  h_t &= o_t \odot \tanh(c_t) \label{eq:lstm-6}
+\end{align}
+In the above equations, $\sigma$ is the sigmoid function defined by equation
+\ref{eq:sigmoid},
+\begin{equation}
+  \sigma(x) = \frac{1}{1 + e^{-x}} \label{eq:sigmoid}
+\end{equation}
+and the different values have the following meaning.
+\begin{description}
+\item[$f_t$] - forget gate - how much of the previous state should be used
+\item[$i_t$] - input gate - how much of the input should be used
+\item[$u_t$] - update gate - the value of the current input
+\item[$o_t$] - output gate - how much of the current result should be outputted
+\item[$c_t$] - memory cell - the state of the network
+\item[$h_t$] - hidden layer - the output of the LSTM cell
+\end{description}
+Given $g^n(x_t, h_{t-1}) = W^{(n)}x_t + U^{(n)} h_{t-1} + b^{(n)}$, figure
+\ref{fig:lstm-cell} shows how the inputs flow in equations \ref{eq:lstm-1} to
+\ref{eq:lstm-6} to generate the outputs of an LSTM cell.
+\begin{figure}[tb]
+  \begin{center}
+    \includegraphics[width=14cm]{./images/lstm-cell.png}
+    \caption{\label{fig:lstm-cell}LSTM cell}
+  \end{center}
+\end{figure}
+In an LSTM network, the state is not passed through $h_t$ as with a plain RNN,
+but through $c_t$, called the memory cell.
