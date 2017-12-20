@@ -376,7 +376,7 @@ follow.
   \frac{\partial x_t}{\partial x_k} = \prod_{t \geq i > k} \frac{\partial x_i}{\partial x_{i-1}}
   \label{eq:rnn-vanishing-gradients}
 \end{equation}
-The following term $\partial x_i/\partial x_{i-1}$ in equation
+The term $\partial x_i/\partial x_{i-1}$ in equation
 \ref{eq:rnn-vanishing-gradients} is less then $1$ \cite{pascanu2013difficulty},
 which means that the value will converge to $0$, and error will not propagate
 all the way through the network, hence the vanishing gradient issue.
@@ -418,4 +418,17 @@ Given $g^n(x_t, h_{t-1}) = W^{(n)}x_t + U^{(n)} h_{t-1} + b^{(n)}$, figure
   \end{center}
 \end{figure}
 In an LSTM network, the state is not passed through $h_t$ as with a plain RNN,
-but through $c_t$, called the memory cell.
+but through $c_t$, called the memory cell. Due to the additive nature of $c_t$,
+the error will also be propagated in an additive manner when computing the
+derivative for $c_t$ \cite{Hochreiter:1997:LSM:1246443.1246450}, avoiding the
+vanishing gradient problem encountered when using plain RNNs.
+%
+\section{Motivating example}
+With the proliferation of programming languages, a single project or application
+is often written using multiple programming languages. For example, a project
+having a native client for the web, Android and iOS will most likely have at
+least a part of it written in JavaScript, a part written in Java or Kotlin and
+another part written in Swift or Objective C. A common issue with such a project
+is having a large amount of logic duplicated for each client. In many cases,
+business logic for an application with multiple frontends can be extracted to
+the backend to avoid duplication.
