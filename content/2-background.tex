@@ -431,4 +431,73 @@ least a part of it written in JavaScript, a part written in Java or Kotlin and
 another part written in Swift or Objective C. A common issue with such a project
 is having a large amount of logic duplicated for each client. In many cases,
 business logic for an application with multiple frontends can be extracted to
-the backend to avoid duplication.
+the backend to avoid duplication. This issue is difficult to tackle from both an
+organizational point of view as well as a technical point of view.
+From the organizational point of view, a common project development structure
+would have a project manager making high level and mostly non-technical
+decisions, while a team would be assigned for each component of the project, for
+example a team would work on the backend API, a team on the Android application,
+another team on the iOS application and finally a team on the web client.
+Although thorough discussion between the team can help to mitigate code
+duplication on the client side up to a certain point, it remains a very tedious
+issue to track.
+
+As an example, we will present a simplified version of a case we actually
+encountered while building a web service. The frontend user interface, shown in
+figure~\ref{fig:app-messages-screen}, consists of a page displaying recent
+messages grouped by sender.
+
+\begin{figure}[tb]
+  \centering\includegraphics[width=6cm]{./images/app-messages-screen.pdf}
+  \caption{\label{fig:app-messages-screen} Study case application user interface}
+\end{figure}
+
+As the conversation grouping feature was not part of the initial application,
+and has been added later on, the API would simply have an HTTP endpoint
+\lstinline{GET /messages} returning a list of the user messages. Given this
+restriction on the API side, the frontend clients need to group the messages by
+conversation, leading to duplicated code show in
+listings~\ref{code:group-messages-js},~\ref{code:group-messages-swift}
+and~\ref{code:group-messages-java}. All of these listings implement the
+following piece of functionality
+\begin{enumerate}
+\item Sort messages from the oldest to the newest
+\item Group messages by the ID of the sender
+\item Sort each group from the oldest to the newest based on its newest message
+\item Return the result as a collection of collections of messages
+\end{enumerate}
+
+Listing~\ref{code:group-messages-js} is implemented in JavaScript,
+listing~\ref{code:group-messages-java} is implemented in Java and
+listing~\ref{code:group-messages-js} is implemented in Swift which are
+respectively used for the web client, the Android application and the iOS
+application. Although the logic is implemented in exactly the same way, each
+language have its particularities and there are therefore some differences in
+the implementation of each snippet.
+
+\begin{figure}
+  \lstinputlisting[
+    language=JavaScript,basicstyle=\footnotesize,
+    label=code:group-messages-js,caption=Message grouping logic in JavaScript]
+    {./snippets/group-sort.js}
+\end{figure}
+%
+\begin{figure}
+  \lstinputlisting[
+    language=Java,basicstyle=\footnotesize,
+    label=code:group-messages-java,caption=Message grouping logic in Java]
+    {./snippets/GroupSort.java}
+\end{figure}
+%
+\begin{figure}
+  \lstinputlisting[
+    language=Swift,basicstyle=\footnotesize,
+    label=code:group-messages-swift,caption=Message grouping logic in Swift]
+    {./snippets/GroupSort.swift}
+\end{figure}
+%
+Although we have focused our example on frontend clients, this issue is also
+very common with any kind of system where multiple actors consume a same source
+of information. For example, microservice architecture, where a service can be
+consumed by a multitude of other services, may also run into the same kind of
+issue.
