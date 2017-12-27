@@ -7,5 +7,7 @@ func groupMessages(messages: [Message]) -> [[Message]] {
         }
         groupedMessages[message.senderId]!.append(message)
     }
-    return groupedMessages.values.sorted { (a, b) in a.last!.sentAt > b.last!.sentAt }
+    return groupedMessages.values.sorted { (a, b) in
+        a.last!.sentAt > b.last!.sentAt
+    }
 }

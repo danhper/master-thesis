@@ -1,3 +1,5 @@
+$ENV{'TEXINPUTS'} = './packages:' . ($ENV{'TEXINPUTS'} || '');
+
 $pdf_mode = 1;
 $pdflatex = 'xelatex --shell-escape --interaction=nonstopmode %O %S';
 $out_dir = 'build';

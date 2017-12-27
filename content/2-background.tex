@@ -466,15 +466,7 @@ following piece of functionality
 \item Sort each group from the oldest to the newest based on its newest message
 \item Return the result as a collection of collections of messages
 \end{enumerate}
-
-Listing~\ref{code:group-messages-js} is implemented in JavaScript,
-listing~\ref{code:group-messages-java} is implemented in Java and
-listing~\ref{code:group-messages-js} is implemented in Swift which are
-respectively used for the web client, the Android application and the iOS
-application. Although the logic is implemented in exactly the same way, each
-language have its particularities and there are therefore some differences in
-the implementation of each snippet.
-
+%
 \begin{figure}
   \lstinputlisting[
     language=JavaScript,basicstyle=\footnotesize,
@@ -496,8 +488,54 @@ the implementation of each snippet.
     {./snippets/GroupSort.swift}
 \end{figure}
 %
+Listing~\ref{code:group-messages-js} is implemented in JavaScript,
+listing~\ref{code:group-messages-java} is implemented in Java and
+listing~\ref{code:group-messages-js} is implemented in Swift which are
+respectively used for the web client, the Android application and the iOS
+application. Although the logic is implemented in exactly the same way, each
+language have its particularities and there are therefore some differences in
+the implementation of each snippet. It is also worth noting that there are also
+semantic differences in the different implementations that can be more tedious
+to notice at first look.
+The first step in all the implementations is to sort the list of messages
+received as an argument. All three implementations use some \lstinline{sort}
+implementation available in the standard library of each language, but this
+creates an important semantic difference --- Swift implementation does not
+modify the argument, while Java and JavaScript implementation modifies it. This
+side effect can be particularly difficult to notice in the JavaScript
+implementation as the return value of the \lstinline{sort} method is used, and
+it is not clear that the function argument is actually modified without having
+to search the documentation. The next step of the implementation is to group all
+the messages by their \lstinline{senderId}. This makes use of a
+\lstinline{map}-like data structure, which is available as a builtin of all
+three languages. All snippets loop over all the messages, maps the
+\lstinline{senderId} key to an empty list if it does not already exist, and adds
+the current message to the \lstinline{senderId} list. All the grouped messages
+are then collected in a list of list, using the map \lstinline{values} function
+when available, or looping through the map otherwise. Finally, the list of list
+is sorted using the \lstinline{sentAt} value of its last message, using the
+\lstinline{last} method if available and indexing otherwise. These snippets are
+therefore very similar, and a decent programmer could immediately tell that they
+are implementing exactly the same functionality, but they contain enough
+differences so that a simple token or tree-level comparison fail to actually
+detect the similarity.
+
 Although we have focused our example on frontend clients, this issue is also
 very common with any kind of system where multiple actors consume a same source
 of information. For example, microservice architecture, where a service can be
 consumed by a multitude of other services, may also run into the same kind of
 issue.
+\subsubsection{Shortcomings of existing approaches}
+Many clone detection systems, such as CCFinder
+\cite{Kamiya:2002:CMT:636188.636191}, DECKARD
+\cite{Jiang:2007:DSA:1248820.1248843} or SourcererCC
+\cite{Sajnani:2016:SSC:2884781.2884877} support multiple languages but are
+mostly designed to find clones within the same programming languages and not
+across them. Furthermore, token-based clone detection tools
+such as SourcererCC \cite{Sajnani:2016:SSC:2884781.2884877} are very efficient
+to find clones which are introduced by copy-pasting, as these sort of clones
+are copy-pasted source code share many tokens, but less efficient when clones
+are introduced by replication of a same functionality by two different entities.
+When working across programming languages, the chances of two code snippets
+sharing a large amount of tokens is further reduced, making token comparisons
+based approaches less likely to detect clones.
