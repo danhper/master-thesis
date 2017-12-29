@@ -46,7 +46,7 @@ or literals. Figure~\ref{fig:add-cst} shows how Listing~\ref{lis:add} would be
 represented as a concrete syntax tree.
 \begin{figure}[tb]
   \begin{center}
-    \includedot[height=5cm]{./diagrams/add-cst.dot}
+    \includedot[height=6cm]{./diagrams/add-cst.dot}
     \caption{\label{fig:add-cst}Concrete Syntax Tree of \lstinline{add} function}
   \end{center}
 \end{figure}
@@ -61,7 +61,7 @@ including clone detection.
 Figure~\ref{fig:add-ast} shows the AST for Listing~\ref{lis:add}.
 \begin{figure}[tb]
   \begin{center}
-    \includedot[height=5cm]{./diagrams/add-ast.dot}
+    \includedot[height=6cm]{./diagrams/add-ast.dot}
     \caption{\label{fig:add-ast}Abstract Syntax Tree of \lstinline{add} function}
   \end{center}
 \end{figure}
@@ -347,7 +347,7 @@ negative sampling. The negative sampling approach only computes the output for
 the target word, as well as a predetermined number of noise word --- word
 not in the window of the context --- and uses the sum of these errors to train
 the model.
-\subsection{Recurrent Neural Networks}
+\subsection{\label{ssec:rnn}Recurrent Neural Networks}
 While word embeddings work well to represent a single word, and to model the
 similarities between words, it is not enough to encode a whole sentence. There
 are many approaches to encode a sentence into a vector, and Recurrent Neural
@@ -457,8 +457,8 @@ and has been added later on, the API would simply have an HTTP endpoint
 \lstinline{GET /messages} returning a list of the user messages. Given this
 restriction on the API side, the frontend clients need to group the messages by
 conversation, leading to duplicated code show in
-listings~\ref{code:group-messages-js},~\ref{code:group-messages-swift}
-and~\ref{code:group-messages-java}. All of these listings implement the
+listings~\ref{lis:group-messages-js},~\ref{lis:group-messages-swift}
+and~\ref{lis:group-messages-java}. All of these listings implement the
 following piece of functionality
 \begin{enumerate}
 \item Sort messages from the oldest to the newest
@@ -470,27 +470,27 @@ following piece of functionality
 \begin{figure}
   \lstinputlisting[
     language=JavaScript,basicstyle=\footnotesize,
-    label=code:group-messages-js,caption=Message grouping logic in JavaScript]
+    label=lis:group-messages-js,caption=Message grouping logic in JavaScript]
     {./snippets/group-sort.js}
 \end{figure}
 %
 \begin{figure}
   \lstinputlisting[
     language=Java,basicstyle=\footnotesize,
-    label=code:group-messages-java,caption=Message grouping logic in Java]
+    label=lis:group-messages-java,caption=Message grouping logic in Java]
     {./snippets/GroupSort.java}
 \end{figure}
 %
 \begin{figure}
   \lstinputlisting[
     language=Swift,basicstyle=\footnotesize,
-    label=code:group-messages-swift,caption=Message grouping logic in Swift]
+    label=lis:group-messages-swift,caption=Message grouping logic in Swift]
     {./snippets/GroupSort.swift}
 \end{figure}
 %
-Listing~\ref{code:group-messages-js} is implemented in JavaScript,
-listing~\ref{code:group-messages-java} is implemented in Java and
-listing~\ref{code:group-messages-js} is implemented in Swift which are
+Listing~\ref{lis:group-messages-js} is implemented in JavaScript,
+listing~\ref{lis:group-messages-java} is implemented in Java and
+listing~\ref{lis:group-messages-js} is implemented in Swift which are
 respectively used for the web client, the Android application and the iOS
 application. Although the logic is implemented in exactly the same way, each
 language have its particularities and there are therefore some differences in
@@ -525,7 +525,7 @@ very common with any kind of system where multiple actors consume a same source
 of information. For example, microservice architecture, where a service can be
 consumed by a multitude of other services, may also run into the same kind of
 issue.
-\subsubsection{Shortcomings of existing approaches}
+\subsubsection{\label{sssec:shortcomings} Shortcomings of existing approaches}
 Many clone detection systems, such as CCFinder
 \cite{Kamiya:2002:CMT:636188.636191}, DECKARD
 \cite{Jiang:2007:DSA:1248820.1248843} or SourcererCC
@@ -539,3 +539,35 @@ are introduced by replication of a same functionality by two different entities.
 When working across programming languages, the chances of two code snippets
 sharing a large amount of tokens is further reduced, making token comparisons
 based approaches less likely to detect clones.
+For example, when comparing listing~\ref{lis:group-messages-js} and listing
+~\ref{lis:group-messages-swift}, line 2 of both listings declare a map-like
+data structure in order to group messages by sender id. However, this is
+impossible to infer with simple token comparisons, and would need some encoding
+about the data types and how they relate to each other to be possible. Some
+systems such as~\cite{kraft2008cross}, which are designed to detect clones
+between programming languages, mitigate this issue by converting the
+source code to a common AST format, but assumes that the two input languages
+have a common intermediate representation, in this case both target the .NET
+platform.
+A slightly more complicated example is the implementation of the sort function
+at line 14 in listing~\ref{lis:group-messages-js} and line 11 in
+listing~\ref{lis:group-messages-swift}. In listing~\ref{lis:group-messages-js},
+the access to the last element of the array is done using
+\lstinline{a[a.length - 1]}, while in listing~\ref{lis:group-messages-swift},
+the same operation is done by using \lstinline{a.last!}. Although an experienced
+developer would have no trouble identifying the fact that both codes implement
+the same functionality, there is currently, to the best of our knowledge, no
+system capable of detecting such similarities in a completely unsupervised
+fashion. Finally, an even harder similarity to detect is between lines 10 to 13
+in listing~\ref{lis:group-messages-js} and the first method call of line 10 in
+listing~\ref{lis:group-messages-swift}. The purpose of both codes are to get all
+the values of the map data structure previously created in the form of a list or
+an array, but although this can be done using the \lstinline{values} property of
+the dictionary data structure in Swift, there is no builtin method on the
+JavaScript object and the same operation therefore requires to loop over its
+elements. This is an example of a type IV code clone, which up to now no system
+has managed to detect very accurately --- all systems presented here report a
+recall score close to $0$ for type IV clones --- and the difference between the
+languages make this task even harder. However, to find interesting results
+given the motivating example above, this is one of the types of code clones that
+we would like to become able to detect.
