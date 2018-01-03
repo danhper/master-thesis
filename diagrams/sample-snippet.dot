@@ -1,0 +1,11 @@
+digraph sample_snippet {
+  ordering=out;
+
+  lt [label="<"];
+
+  if -> lt;
+  lt -> a;
+  lt -> 1;
+  if -> return;
+  return -> 0;
+}
