@@ -3,7 +3,7 @@
 %
 \newcommand{\@builddir}{./build/}
 %
-\RequirePackage{fontspec}
+\usepackage{fontspec}
 \setsansfont{Noto Sans}
 \setmonofont{Consolas}
 \newfontfamily\jafont{TakaoMincho}
@@ -37,5 +37,7 @@
   framexleftmargin=2em,
   numbersep=1em
 }
+%
+\setcounter{MaxMatrixCols}{20}
 %
 \usetikzlibrary{matrix, chains, positioning, decorations.pathreplacing, arrows, arrows.meta, calc}
