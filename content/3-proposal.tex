@@ -94,20 +94,20 @@ each integer represents the index of the token in the AST in the vocabulary of
 the programming language the source code is written in.
 
 More formally, if we let $\mathcal{T}_l$ be the set of all possible ASTs for
-source code written in programming language $l$, the AST transformer $f_l$ will
+source code written in programming language $l$, the AST transformer $f_t^l$ will
 be a function with the following definition.
 
 \begin{equation}
-  f_l : \mathcal{T}_l \rightarrow \mathbb{N}^m
+  f_t^l : \mathcal{T}_l \rightarrow \mathbb{N}^m
 \end{equation}
 
 where $m$ may vary depending on the size of the input tree and the algorithm
-used for $f_l$. Furthermore, given $V_l$ is the vocabulary of tokens for the
+used for $f_t^l$. Furthermore, given $V_l$ is the vocabulary of tokens for the
 programming language $l$, the following equation must hold for any
-implementation of $f_l$.
+implementation of $f_t^l$.
 
 \begin{equation}
-  \forall t \in \mathcal{T}_l, n \in f_l(t), ~ n \in V_l
+  \forall t \in \mathcal{T}_l, n \in f_t^l(t), ~ n \in V_l
 \end{equation}
 %
 For CC-Learner, we provide two different instances of this function, and the
@@ -157,8 +157,11 @@ and append $1$ to the output vector. It will then do the same thing with the
 other nodes in the following order: \lstinline{<}, \lstinline{a}, \lstinline{1},
 \lstinline{return}, \lstinline{0}. After completion, we will therefore obtain
 the following vector in $\mathbb{N}^6$.
-\[ \begin{pmatrix}1 & 4 & 2 & 3 & 5 & 3\end{pmatrix} \]
-When using this algorithms, the output dimension is always the same as the
+\begin{equation}
+  \label{eq:sample-indexes-vector}
+  \begin{pmatrix}1 & 4 & 2 & 3 & 5 & 3\end{pmatrix}
+\end{equation}
+When using this algorithm, the output dimension is always the same as the
 number of nodes in the input AST.
 
 Although the first instance of our AST to vector transformer is very simple and
@@ -195,15 +198,58 @@ tree, the final output vector will have twice the dimension of the number of
 nodes in the tree. Therefore, if there are $n$ nodes in the tree, the output
 will be a vector in $\mathbb{N}^{2n}$.
 %
-\subsubsection{Token embeddings}
+\subsubsection{Token embedding}
 When we transform an AST in to a vector using the above approach, we obtain a
 vector of indexes. As each index cannot be fed directly to the encoder, the two
 main approaches are to use a one-hot vector for the index, or to use a
 distributed vector representation. As using a distributed vector representation
 has many advantages~\cite{DBLP:journals/corr/MikolovSCCD13} over using one-hot
 vectors, we choose this approach for our model. We will here assume that we
-already have the embeddings for each token available, and will describe how we
-actually compute these embeddings in Section~\ref{sec:token-representation}.
+already have the embedding for each token available, and will describe how we
+actually compute these embedding in Section~\ref{sec:token-representation}.
+
+The embedding layer of the model transforms a vector in $\mathbb{N}^n$ into a
+matrix in $\mathbb{R}^{n\times d}$ where $d$ is the dimension of the embedding
+and is a hyper parameter of the model. The embedding layer is therefore a
+function $f_e$ with the following dimensions.
+
+\begin{equation}
+  f_e : \mathbb{N}^n \rightarrow \mathbb{R}^{n\times d}
+\end{equation}
+
+Given the embedding of dimension $3$ given in table~\ref{tab:sample-embedding}
+for the sample vocabulary presented in~\ref{tab:sample-vocabulary}, the vector
+of indexes in equation~\ref{eq:sample-indexes-vector} will be transformed in the
+matrix of equation~\ref{eq:sample-embbed-matrix}.
+
+\begin{table}
+  \centering
+  \begin{tabular}{cc}
+    Index & Embedding\\
+    \toprule
+    $1$ & $\begin{pmatrix}0.12 & -0.43 & 0.66\end{pmatrix}$\\
+    $2$ & $\begin{pmatrix}-0.81 & 0.01 & 0.28\end{pmatrix}$\\
+    $3$ & $\begin{pmatrix}0.91 & 0.33 & 0.47\end{pmatrix}$\\
+    $4$ & $\begin{pmatrix}-0.51 & -0.27 & -0.09\end{pmatrix}$\\
+    $5$ & $\begin{pmatrix}0.17 & 0.73 & -0.56\end{pmatrix}$\\
+  \end{tabular}
+  \caption{\label{tab:sample-embedding} Sample embedding of dimension $3$}
+\end{table}
+
+\begin{equation}
+  \label{eq:sample-embbed-matrix}
+  \begin{pmatrix}
+    0.12 & -0.43 & 0.66\\
+    -0.51 & -0.27 & -0.09\\
+    -0.81 & 0.01 & 0.28\\
+    0.91 & 0.33 & 0.47\\
+    0.17 & 0.73 & -0.56\\
+    0.91 & 0.33 & 0.47
+  \end{pmatrix}
+\end{equation}
+
+In the matrix shown in equation~\ref{eq:sample-embbed-matrix}, each row is the
+embedding of the index in the original vector.
 \section{\label{sec:preprocessing}Code pre-processing steps}
 %
 \section{\label{sec:token-representation}Token-level vector representation}
