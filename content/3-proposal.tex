@@ -194,6 +194,16 @@ and which will therefore each have the dimension of the number of nodes in the
 tree, the final output vector will have twice the dimension of the number of
 nodes in the tree. Therefore, if there are $n$ nodes in the tree, the output
 will be a vector in $\mathbb{N}^{2n}$.
+%
+\subsubsection{Token embeddings}
+When we transform an AST in to a vector using the above approach, we obtain a
+vector of indexes. As each index cannot be fed directly to the encoder, the two
+main approaches are to use a one-hot vector for the index, or to use a
+distributed vector representation. As using a distributed vector representation
+has many advantages~\cite{DBLP:journals/corr/MikolovSCCD13} over using one-hot
+vectors, we choose this approach for our model. We will here assume that we
+already have the embeddings for each token available, and will describe how we
+actually compute these embeddings in Section~\ref{sec:token-representation}.
 \section{\label{sec:preprocessing}Code pre-processing steps}
 %
 \section{\label{sec:token-representation}Token-level vector representation}
