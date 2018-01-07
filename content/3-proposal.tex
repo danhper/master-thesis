@@ -35,7 +35,8 @@ Figure~\ref{fig:system-overview} shows a general overview of how our system
 works.
 
 \begin{figure}
-\caption{\label{fig:system-overview}Overview of the system}
+  \centering\includegraphics[width=13cm]{./images/system-overview.pdf}
+  \caption{\label{fig:system-overview}Overview of the system}
 \end{figure}
 
 The core of our system is~\ref{it:sup-model}, which is an LSTM --- presented
@@ -67,7 +68,8 @@ to actually predict if two code fragments are, or not, clones. The model is
 composed of the following components.
 \begin{enumerate}
 \item An AST to vector transformer
-\item An encoder for AST vectors
+\item A token-level embedding layer
+\item An LSTM-based encoder for AST vectors
 \item A merge layer to concatenate the two code fragments vectors
 \item A feed-forward neural network to make the code clone prediction
 \end{enumerate}
@@ -76,7 +78,8 @@ Figure~\ref{fig:clone-detection-model} shows how these parts are connected
 together.
 %
 \begin{figure}
-\caption{\label{fig:clone-detection-model}CC-Learner code clone detection model}
+  \centering\includegraphics[width=16cm]{./images/model-overview.pdf}
+  \caption{\label{fig:clone-detection-model}CC-Learner code clone detection model}
 \end{figure}
 %
 In this section, we will first describe in details the computations done by the
@@ -116,19 +119,19 @@ snippet~\ref{lis:sample-snippet}, the AST of figure~\ref{fig:sample-ast} and the
 vocabulary of table~\ref{tab:sample-vocabulary} to illustrate how both of our
 instances work.
 %
-\begin{figure}[tb]
+\begin{figure}
 \begin{lstlisting}[language=Java,label=lis:sample-snippet,caption=Sample code snippet]
 if (a < 1) {
   return 0;
 }
 \end{lstlisting}
+\vspace*{1cm}
 \end{figure}
 %
-\begin{figure}[tb]
-  \begin{center}
-    \includedot[height=5cm]{./diagrams/sample-snippet.dot}
-    \caption{\label{fig:sample-ast} Sample AST}
-  \end{center}
+\begin{figure}
+  \centering\includedot[height=5cm]{./diagrams/sample-snippet.dot}
+  \vspace*{-1cm}
+  \caption{\label{fig:sample-ast} Sample AST}
 \end{figure}
 %
 \begin{table}
@@ -198,7 +201,7 @@ tree, the final output vector will have twice the dimension of the number of
 nodes in the tree. Therefore, if there are $n$ nodes in the tree, the output
 will be a vector in $\mathbb{N}^{2n}$.
 %
-\subsubsection{Token embedding}
+\subsubsection{Token-level embedding layer}
 When we transform an AST in to a vector using the above approach, we obtain a
 vector of indexes. As each index cannot be fed directly to the encoder, the two
 main approaches are to use a one-hot vector for the index, or to use a
@@ -209,22 +212,53 @@ already have the embedding for each token available, and will describe how we
 actually compute these embedding in Section~\ref{sec:token-representation}.
 
 The embedding layer of the model transforms a vector in $\mathbb{N}^n$ into a
-matrix in $\mathbb{R}^{n\times d}$ where $d$ is the dimension of the embedding
-and is a hyper parameter of the model. The embedding layer is therefore a
-function $f_e$ with the following dimensions.
+matrix in $\mathbb{R}^{n\times d_w}$ where $d_w$ is the dimension of the embedding
+and is a hyper parameter of the model. The embedding layer for a programming
+language $l$ is therefore a function $f_w^l$ with the following dimensions.
 
 \begin{equation}
-  f_e : \mathbb{N}^n \rightarrow \mathbb{R}^{n\times d}
+  f_w^l : \mathbb{N}^n \rightarrow \mathbb{R}^{n\times d_w}
 \end{equation}
 
-Given the embedding of dimension $3$ given in table~\ref{tab:sample-embedding}
-for the sample vocabulary presented in~\ref{tab:sample-vocabulary}, the vector
-of indexes in equation~\ref{eq:sample-indexes-vector} will be transformed in the
-matrix of equation~\ref{eq:sample-embbed-matrix}.
+Such embedding are actually represented by a matrix $W^l$ which has dimensions
+of $\mathbb{R}^{|V|\times d_w}$ where $|V|$ is the size programming language $l$
+vocabulary, and $d_2$ is the dimension of the embedding.
+Sample values for embedding of dimension $d_w = 3$ are show in
+table~\ref{tab:sample-vocabulary}.
+The sample embedding given in table~\ref{tab:sample-vocabulary} are
+shown in their matrix form in equation~\ref{eq:sample-vocabulary}.
+
+\begin{equation}
+  \label{eq:sample-vocabulary}
+  W^l =
+  \begin{pmatrix}
+    0.12 & -0.43 & 0.66\\
+    -0.81 & 0.01 & 0.28\\
+    0.91 & 0.33 & 0.47\\
+    -0.51 & -0.27 & -0.09\\
+    0.17 & 0.73 & -0.56
+  \end{pmatrix}
+\end{equation}
+
+Transforming an index $i$ in its vector representation therefore reduces to
+selecting the $i$th index of the matrix $W^l$, and the function $f_w$ can
+therefore be expressed as in equation~\ref{eq:embedding-func}, and is
+computationally inexpensive. In \ref{eq:embedding-func}, $W_i$ means selecting
+the $i$th row of the matrix $W$.
+
+\begin{equation}
+  \label{eq:embedding-func}
+  f_w^l(i) = W_i^l
+\end{equation}
+
+Given the embedding of dimension $d_w = 3$ given in table~\ref{tab:sample-embedding}
+for the sample vocabulary presented in table~\ref{tab:sample-vocabulary}, the
+vector of indexes in equation~\ref{eq:sample-indexes-vector} will be transformed
+in the matrix of equation~\ref{eq:sample-embbed-matrix}.
 
 \begin{table}
   \centering
-  \begin{tabular}{cc}
+  \begin{tabular}{cl}
     Index & Embedding\\
     \toprule
     $1$ & $\begin{pmatrix}0.12 & -0.43 & 0.66\end{pmatrix}$\\
@@ -250,6 +284,156 @@ matrix of equation~\ref{eq:sample-embbed-matrix}.
 
 In the matrix shown in equation~\ref{eq:sample-embbed-matrix}, each row is the
 embedding of the index in the original vector.
+%
+\subsubsection{LSTM-based encoder}
+As discussed previously, the output of the embedding layer will be a matrix of
+dimension $\mathbb{R}^{n\times d}$ where $d$ where $n$ depends on the size of
+the input AST and $d$ is the dimension of the embedding, which is a
+hyper-parameter of the model. The purpose of the LSTM-based encoder layer is to
+transform this matrix into a vector in $d_e$, where $d_e$ is a hyper-parameter of
+the model, which captures the relation between the elements in the input matrix.
+This task is the equivalent of transforming a matrix representing a sentence to
+a vector representing the same sentence for natural language processing.
+This layer will therefore be a function $f_e$ defined as in
+equation~\ref{eq:lstm-encoder}.
+
+\begin{equation}
+  \label{eq:lstm-encoder}
+  f_e : \mathbb{R}^{n\times d} \rightarrow \mathbb{R}^{d_e}
+\end{equation}
+
+An interesting property of this function is that the output dimension is
+independent of the input dimension, which makes it possible to easily aggregate
+inputs which originally had different dimensions in the next layer of the model.
+
+To achieve this task, we use an LSTM model as described in~\ref{ssec:rnn}, and
+feed it the result of the embedding layer. $d_e$ is chosen experimentally, and is
+usually between $20$ and $200$ depending on the other hyper-parameters of the
+model.
+
+Given the result shown in equation~\ref{eq:sample-embbed-matrix} and $d_e = 4$,
+equation~\ref{eq:sample-lstm-output} shows a sample output of the LSTM encoder.
+
+\begin{equation}
+  \label{eq:sample-lstm-output}
+  \begin{pmatrix}
+    0.81 & -0.12 & 0.77 & -0.45
+  \end{pmatrix}
+\end{equation}
+
+There are also other choices that need to be made when instaciating the
+LSTM. We first need to decide if the LSTM will be bi-directional or not. When
+the LSTM is bi-directional, there will actually be two LSTMs: an LSTM for the
+forward direction of the output of the embedding layer, and an LSTM for the
+reverse direction. After the two computations run, the result of the two LSTMs
+will be concatenated to give the final output. The final dimension of the vector
+will therefore be $2d_e$ instead of $d_e$. Equation~\ref{eq:sample-bilstm-output}
+shows a sample output for equation~\ref{eq:sample-embbed-matrix} as input and
+$d_e = 4$ when using a bi-directional LSTM.
+
+\begin{equation}
+  \label{eq:sample-bilstm-output}
+  \begin{pmatrix}
+    0.81 & -0.12 & 0.77 & -0.45 & -0.68 & 0.22 & 0.94 & -0.03
+  \end{pmatrix}
+\end{equation}
+
+Another decision to make for the LSTM-based encoder is whether to use a single
+LSTM which works as described in~\ref{ssec:rnn}, or to stack multiple LSTMs
+above one another. When stacking multiple LSTMs, the first LSTM works exactly a
+before, however, its output is not directly used but fed to another LSTM and
+only the uppermost LSTM result is used for the next step. We try to use 1 to 3
+stacked LSTM and chose the best value for our use case experimentally.
+%
+\subsubsection{Merge layer}
+Up to know, we have focused on how to encode a single AST into a vector in
+$\mathbb{R}^{d_e}$. However, our model takes two inputs, and produces a single
+output. We therefore need to combine these two inputs in some way that allows us
+to generate a single prediction to whether or not the two given inputs are
+code clones or not. This is the role of merge layer in our model. It takes two
+inputs and return a single output. The merge layer is therefore defined by a
+function $f_m$ as shown in equation~\ref{eq:merge-layer}, where $n$ normally
+depends on $d_e$.
+
+\begin{equation}
+  \label{eq:merge-layer}
+  f_m : \mathbb{R}^{d_e} \times \mathbb{R}^{d_e} \rightarrow \mathbb{R}^{n}
+\end{equation}
+
+In our model, we define two different types of merge layers which we will
+describe below.
+
+The first instance of the merge layer is used as a baseline, and is a simple
+concatenation operation. We take the vector outputted by the LSTM-based encoder
+for the two input ASTs, and concatenate them into a single vector in
+$\mathbb{R}^{2d_e}$. In this case, we therefore have $n = 2d_e$.
+For example, given the LSTM output given in equation~\ref{eq:sample-lstm-output}
+and another LSTM output given by equation~\ref{eq:sample-lstm-output-2},
+
+\begin{equation}
+  \label{eq:sample-lstm-output-2}
+  \begin{pmatrix}0.12 & 0.86 & -0.27 & 0.33\end{pmatrix}
+\end{equation}
+
+the merge layer would output the following vector.
+
+\begin{equation}
+  \begin{pmatrix}
+    0.81 & -0.12 & 0.77 & -0.45 & 0.12 & 0.86 & -0.27 & 0.33
+  \end{pmatrix}
+\end{equation}
+
+The second instance of the merge layer uses the combination of the angle and the
+distance of the two vectors described in~\cite{DBLP:journals/corr/TaiSM15}.
+Given $h_L$ the output of the encoder for the first code snippet and $h_R$ the
+output of the encoder for the second code snippet, the output $h$ of the merge
+layer is defined by equation~\ref{eq:bidistance-merge-layer}.
+
+\begin{align}
+  \label{eq:bidistance-merge-layer}
+  h_\times &= h_L \odot h_R\\
+  h_+ &= |h_L - h_R| \nonumber\\
+  h &= W^{(\times)}h_\times + W^{(+)}h_+ \nonumber
+\end{align}
+
+When using this merge strategy, $W^{(\times)}$ and $W^{(+)}$ are parameters of
+the model and are both matrices with dimension $\mathbb{R}^{d_o\times d_e}$
+where $d_o$ is a hyper-parameter of the model. The dimensions of the different
+results will therefore be $h_\times \in \mathbb{R}^{d_e}$, $h_+ \in
+\mathbb{R}^{d_e}$ and $h \in \mathbb{R}^{d_o}$. Using the outputs given in
+equations~\ref{eq:sample-lstm-output} and~\ref{eq:sample-lstm-output-2}, we will
+therefore obtain the following results.
+
+\begin{align*}
+  h_\times &= \begin{pmatrix}0.0972 & -0.1032 & -0.2079 & -0.1485\end{pmatrix}\\
+  h_+ &= \begin{pmatrix}0.69 & 0.98 & 1.04 & 0.78\end{pmatrix}
+\end{align*}
+$h$ will then be obtain by doing a dot product using the weights of the model
+and the results shown above.
+\subsubsection{Feed-forward neural network}
+Once we obtain a single vector containing information about the two input code
+snippets, we use a feed-forward neural network to predict if the inputs were
+code clones or not. The output layer of our neural network uses a sigmoid
+function defined as in~\ref{eq:sigmoid}, and therefore outputs a real number
+between $0$ and $1$ which can be interpreted as a probability.
+
+\begin{equation}
+  \label{eq:sigmoid}
+  \sigma(x) = \frac{1}{1 + e^{-x}}
+\end{equation}
+
+The feed-forward neural network can therefore be represented by a function $f_p$
+defined as follow.
+
+\begin{equation}
+  \label{eq:feed-forward}
+  f_p : \mathbb{R}^{d_o} \rightarrow [0, 1]
+\end{equation}
+
+This layer has the usual hyper-parameters found in feed-forward neural networks,
+for example, the number of hidden layers, the number of units per layer and the
+number or the activation function of the hidden layers. We choose these
+hyper-parameters experimentally.
 \section{\label{sec:preprocessing}Code pre-processing steps}
 %
 \section{\label{sec:token-representation}Token-level vector representation}
