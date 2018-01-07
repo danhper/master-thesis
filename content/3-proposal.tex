@@ -294,12 +294,12 @@ transform this matrix into a vector in $d_e$, where $d_e$ is a hyper-parameter o
 the model, which captures the relation between the elements in the input matrix.
 This task is the equivalent of transforming a matrix representing a sentence to
 a vector representing the same sentence for natural language processing.
-This layer will therefore be a function $f_e$ defined as in
+This layer will therefore be a function $f_e^l$ defined as in
 equation~\ref{eq:lstm-encoder}.
 
 \begin{equation}
   \label{eq:lstm-encoder}
-  f_e : \mathbb{R}^{n\times d} \rightarrow \mathbb{R}^{d_e}
+  f_e^l : \mathbb{R}^{n\times d} \rightarrow \mathbb{R}^{d_e}
 \end{equation}
 
 An interesting property of this function is that the output dimension is
@@ -434,6 +434,46 @@ This layer has the usual hyper-parameters found in feed-forward neural networks,
 for example, the number of hidden layers, the number of units per layer and the
 number or the activation function of the hidden layers. We choose these
 hyper-parameters experimentally.
+\subsubsection{Model training}
+We will now describe how the weights of the model defined using the layers
+described in this section can be trained. First, using the function definitions
+above, we can define our model using the following functions.
+\begin{align}
+  \label{eq:model-function-1}
+  f_E^l(x) = (f_e^l \circ f_w^l \circ f_t^l)(x)\\
+  \label{eq:model-function-2}
+  f^{(l_1, l_2)}(x, y) = f_p\left( f_m\left( f_E^{l_1}(x), f_E^{l_2}(y) \right) \right)
+\end{align}
+In~\ref{eq:model-function-2}, $x$ is a code snippet AST written in programming
+language $l_1$ and $y$ is written in programming language $l_2$. To be able to
+train the model, we first need to define a loss function for our model. As we
+output a probability, we choose the binary cross entropy loss function defined
+as follow.
+
+\begin{equation}
+  \label{eq:binary-cross-entropy}
+  L(y, \hat{y}) = y\log \hat{y} + (1 - y) \log(1 - \hat{y})
+\end{equation}
+
+In equation~\ref{eq:binary-cross-entropy}, $y$ is the actual output --- $1$ if
+the two input code snippets are clones and $0$ otherwise --- and $\hat{y}$ is
+the value predicted by our model. Our loss for a sample can therefore be
+computed using the following equation.
+
+\begin{equation}
+  E(x_1, x_2, y) = L(y, f(x_1, x_2))
+\end{equation}
+
+In order to train our model, we compute the gradient of the our error $E$ with
+respect to the weights $\mathbf{W}$ of the model,
+$\partial E/\partial\mathbf{W}$ using back-propagation, and then apply an
+optimization algorithm such as gradient descent or
+Adam~\cite{DBLP:journals/corr/KingmaB14}.
+
+To execute the training, we simply need to have many samples of code pairs,
+with a label telling us if the pair is, or not, a code clone. We can then use
+these sample to feed our model, back-propagate the error and update the weights
+of the model as for any other machine learning model.
 \section{\label{sec:ast-generation}AST generation}
 In order to be able to work with source code written in different languages,
 we implemented multiple AST generation tools which generate ASTs in a common
