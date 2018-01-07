@@ -53,7 +53,7 @@ used to detect code clones. In Section~\ref{sec:token-representation}
 to~\ref{sec:code-clone-data}, we will describe all the steps to fetch, process
 and transform the data in order to be able to feed it into our machine learning
 model presented in Section~\ref{sec:clone-detection}.
-In Section~\ref{sec:preprocessing}, we will describe the pre-processing steps in
+In Section~\ref{sec:ast-generation}, we will describe the AST generation in
 order to be able to work with source code written in different programming
 languages, in Section~\ref{sec:token-representation}, we will explain how we
 assign a vector in $\mathbb{R}^d$ to each token in the source code, and finally
@@ -434,8 +434,99 @@ This layer has the usual hyper-parameters found in feed-forward neural networks,
 for example, the number of hidden layers, the number of units per layer and the
 number or the activation function of the hidden layers. We choose these
 hyper-parameters experimentally.
-\section{\label{sec:preprocessing}Code pre-processing steps}
+\section{\label{sec:ast-generation}AST generation}
+In order to be able to work with source code written in different languages,
+we implemented multiple AST generation tools which generate ASTs in a common
+format for different programming languages. The tool we developed is available
+on GitHub%
+\footnote{\url{https://github.com/tuvistavie/bigcode-tools/tree/master/bigcode-astgen}}
+and supports source code written in Python, Java and JavaScript.
+
+As a common format for ASTs, we chose to use the JSON format described in
+\cite{Raychev:2016:LPN:2837614.2837671}. A JSON AST is a JSON array of objects,
+where each object contains the following properties.
+
+\begin{itemize}
+\item \lstinline{id} (\lstinline{int}, required) -  unique integer identifying
+  current AST node
+\item \lstinline{type} (\lstinline{string}, required) - type of current AST node
+\item \lstinline{value} (\lstinline{string}, optional) - value of current AST
+  node if any
+\item \lstinline{children} (\lstinline{list[int]}, optional) - children
+  \lstinline{id}s of current AST node if any
+\end{itemize}
 %
+Another thing to note about this format is that the objects in the list follow
+the order obtained when doing a pre-order, depth-first search on the AST.
+Although this is not a constraint, keeping such an order allow to have a simpler
+algorithm to reconstruct a real tree-structured AST from the JSON formatted AST.
+Depending on the language, we would possible need to have other
+properties to express completely the source code, we choose to focus solely on
+the properties listed above to avoid keeping language-specific information. To
+illustrate how the AST is encoded into JSON, listing~\ref{lis:add-js} is a
+simple Python function that adds two numbers, and listing~\ref{lis:add-js-ast}
+is its JSON AST representation.
+
+\begin{figure}
+  \lstinputlisting[
+    language=Python,
+    label=lis:add-js,caption=\lstinline{add} function in Python]
+    {./snippets/add.py}
+\end{figure}
+
+\begin{figure}
+  \lstinputlisting[
+    language=JavaScript,basicstyle=\small,
+    label=lis:add-js-ast,caption=\lstinline{add} function JSON AST]
+    {./snippets/add-py-ast.json}
+\end{figure}
+
+We indented the JSON to make the object more readable, but it is a simple JSON
+array and has therefore no indent or nesting property at a structural level. The
+nesting of the child is done by having the indexes of the children in the
+\lstinline{children} property of each object.
+
+To generate the ASTs in each language, we used the
+JavaParser\footnote{\url{http://javaparser.org/}} library for Java, the
+\lstinline{ast} module\footnote{\url{https://docs.python.org/3/library/ast.html}} for
+Python and the Acorn~\footnote{\url{https://github.com/acornjs/acorn}} library for
+JavaScript.
+
+To perform most tasks, we need to restore a tree structured from the flat JSON
+formatted AST. Algorithm~\ref{alg:json-to-ast} describes a recursive algorithm
+to perform this task.
+
+\begin{algorithm}
+  \caption{\label{alg:json-to-ast}Tree-structured AST from JSON formatted AST}
+  \begin{algorithmic}[1]
+    \Function{CreateAST}{\lstinline{jsonArray}}
+      \State \lstinline{return ASTFromJSONObject(jsonArray, 0)}
+    \EndFunction%
+    \Function{ASTFromJSONObject}{\lstinline{jsonArray}, \lstinline{nodeId}}
+      \State \lstinline{jsonNode} $\gets$ \lstinline{jsonArray[nodeId]}
+      \State \lstinline{node} $\gets$ \lstinline{new Node}
+      \State \lstinline{node.id} $\gets$ \lstinline{jsonNode.id}
+      \State \lstinline{node.type} $\gets$ \lstinline{jsonNode.type}
+      \State \lstinline{node.value} $\gets$ \lstinline{jsonNode.value}
+      \State \lstinline{node.children} $\gets$ \lstinline{[]}
+      \For{\lstinline{childId} $\gets$ \lstinline{jsonNode.children}}
+        \State \lstinline{childNode} $\gets$
+        \lstinline{ASTFromJSONObject(jsonArray, childId)}
+        \State Append \lstinline{childNode} to \lstinline{node.children}
+      \EndFor
+      \State \lstinline{return node}
+    \EndFunction%
+  \end{algorithmic}
+\end{algorithm}
+As mentioned above, we assume the JSON array is generated using a pre-order,
+depth-first search. We therefore know that the root of the AST will be the first
+element of the array. \lstinline{CreateAST} therefore delegates the creation of
+the AST to \lstinline{ASTFromJSONObject}, which will receives the root and
+recurse from it to generate the full tree. \lstinline{ASTFromJSONObject} will
+assign all the properties from the JSON node it received to a new node object,
+except for the children. It enumerates on each child id in the JSON node
+children array, and recursively calls itself, passing in the child index as its
+second parameter.
 \section{\label{sec:token-representation}Token-level vector representation}
 %
 \section{\label{sec:code-clone-data}Code clone data for supervised learning}

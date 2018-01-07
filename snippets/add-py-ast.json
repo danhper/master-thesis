@@ -1,0 +1,10 @@
+[{"id": 0, "type": "Module", "children": [1]},
+   {"id": 1, "type": "FunctionDef", "value": "add", "children": [2, 5]},
+     {"id": 2, "type": "arguments", "children": [3, 4]},
+       {"id": 3, "type": "arg", "value": "a"},
+       {"id": 4, "type": "arg", "value": "b"},
+     {"id": 5, "type": "body", "children": [6]},
+       {"id": 6, "type": "Return", "children": [7]},
+         {"id": 7, "type": "BinOpAdd", "children": [8, 9]},
+           {"id": 8, "type": "NameLoad", "value": "a"},
+           {"id": 9, "type": "NameLoad", "value": "b"}]
