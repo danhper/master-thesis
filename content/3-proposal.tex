@@ -568,5 +568,27 @@ except for the children. It enumerates on each child id in the JSON node
 children array, and recursively calls itself, passing in the child index as its
 second parameter.
 \section{\label{sec:token-representation}Token-level vector representation}
+As discussed previously, we do not feed our model one-hot vector representation
+of the tokens, but rather token embedding. In this section, we explain how we
+generate token-level vector representation, also known as embedding, for each
+token in the vocabulary of a programming language. The process for generating
+token embedding for a programming language $l$ can be divided in the following
+steps.
+\begin{enumerate}
+\item Collect source code written in $l$
+\item Generate the vocabulary of $l$
+\item Generate data to train a skipgram model
+\item Train a neural network using the data generated in 2.
+\end{enumerate}
+We show an overview of the generation process for token-level embedding in
+figure~\ref{fig:embedding-generation}. In the rest of this section, we will
+describe the different algorithms to generate the vocabulary, generate the data
+to train a skipgram model, as well as the details of the skipgram model. We will
+leave the source code collection details for chapter~\ref{ch:experiments}.
+
+\begin{figure}
+  \centering\includegraphics[width=14cm]{images/embedding-generation.pdf}
+  \caption{\label{fig:embedding-generation} Embedding generation}
+\end{figure}
 %
 \section{\label{sec:code-clone-data}Code clone data for supervised learning}
