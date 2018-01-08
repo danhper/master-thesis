@@ -503,21 +503,21 @@ algorithm to reconstruct a real tree-structured AST from the JSON formatted AST.
 Depending on the language, we would possible need to have other
 properties to express completely the source code, we choose to focus solely on
 the properties listed above to avoid keeping language-specific information. To
-illustrate how the AST is encoded into JSON, listing~\ref{lis:add-js} is a
-simple Python function that adds two numbers, and listing~\ref{lis:add-js-ast}
+illustrate how the AST is encoded into JSON, listing~\ref{lis:add-py} is a
+simple Python function that adds two numbers, and listing~\ref{lis:add-py-ast}
 is its JSON AST representation.
 
 \begin{figure}
   \lstinputlisting[
     language=Python,
-    label=lis:add-js,caption=\lstinline{add} function in Python]
+    label=lis:add-py,caption=\lstinline{add} function in Python]
     {./snippets/add.py}
 \end{figure}
 
 \begin{figure}
   \lstinputlisting[
     language=JavaScript,basicstyle=\small,
-    label=lis:add-js-ast,caption=\lstinline{add} function JSON AST]
+    label=lis:add-py-ast,caption=\lstinline{add} function JSON AST]
     {./snippets/add-py-ast.json}
 \end{figure}
 
@@ -549,7 +549,7 @@ to perform this task.
       \State \lstinline{node.type} $\gets$ \lstinline{jsonNode.type}
       \State \lstinline{node.value} $\gets$ \lstinline{jsonNode.value}
       \State \lstinline{node.children} $\gets$ \lstinline{[]}
-      \For{\lstinline{childId} $\gets$ \lstinline{jsonNode.children}}
+      \For{\lstinline{childId} in \lstinline{jsonNode.children}}
         \State \lstinline{childNode} $\gets$
         \lstinline{ASTFromJSONObject(jsonArray, childId)}
         \State Append \lstinline{childNode} to \lstinline{node.children}
@@ -580,15 +580,136 @@ steps.
 \item Generate data to train a skipgram model
 \item Train a neural network using the data generated in 2.
 \end{enumerate}
-We show an overview of the generation process for token-level embedding in
+We show an overview of the token-level embedding generation process in
 figure~\ref{fig:embedding-generation}. In the rest of this section, we will
 describe the different algorithms to generate the vocabulary, generate the data
 to train a skipgram model, as well as the details of the skipgram model. We will
-leave the source code collection details for chapter~\ref{ch:experiments}.
+leave the source code collection details for Chapter~\ref{ch:experiments}.
 
 \begin{figure}
   \centering\includegraphics[width=14cm]{images/embedding-generation.pdf}
   \caption{\label{fig:embedding-generation} Embedding generation}
 \end{figure}
 %
+\subsubsection{Vocabulary generation}
+To be able to learn embedding for different tokens in a target programming
+language, we first generate a finite set of tokens --- the vocabulary of the
+programming language. There are a few different choices to consider when
+generating the vocabulary of the language, the main choices we consider are:
+
+\begin{enumerate}
+\item Should application specific tokens be included in the vocabulary?
+\item How large should be the vocabulary?
+\end{enumerate}
+
+We define application specific tokens as tokens that can be unique to a program,
+for example, identifiers such as variable and method names or values in
+literals.
+If we choose to ignore the application specific tokens, we do not remove the
+token but rather ignore its value and keep only its type.
+We will consider the code snippet in listing~\ref{lis:is-minor} to explain how
+we can treat application specific tokens.
+
+\begin{figure}
+  \lstinputlisting[
+    language=Python,
+    label=lis:is-minor,caption=\lstinline{is_minor} function in Python]
+    {./snippets/is_minor.py}
+\end{figure}
+
+First, given we take all application specific tokens, we will have the following
+tokens.
+
+\begin{lstlisting}[numbers=none,language=Python]
+def, is_minor, age, if, age, >=, 18, print, "you are major",
+else, "you are minor"
+\end{lstlisting}
+
+On the other hand, if we decide to strip all the application specific tokens, we
+will replace all the token with a value by their type, and therefore all
+identifiers will be replaced by a common \lstinline{<ident>} token, all string
+literals will be replaced by a common \lstinline{<string>} token, and only the
+following tokens set will remain in the vocabulary.
+
+\begin{lstlisting}[numbers=none,language=Python]
+def, <ident>, if, <binary_op>, <string>, else
+\end{lstlisting}
+
+If we choose to ignore all application specific tokens, we only keep a
+predictable number of tokens that the target programming language defined in its
+specifications, and we can therefore ignore the size of the vocabulary issue
+altogether as the number of tokens we might expect will always be small enough.
+
+When using application specific tokens, although we could simply use all the
+tokens as shown in the example above, all tokens might not be very significant
+and we therefore need to choose what tokens we want to keep and what tokens we
+want to ignore. As many identifiers can be found across applications, especially
+the one found in the standard library or well-known libraries of a programming
+language, we decide to keep all identifiers. However, we decide not to keep
+string literals as these are too rarely shared between different programs.
+Another issue when using application specific tokens is the case where a token
+encountered after having generated our vocabulary does not exist in the
+vocabulary, in which case it is not possible to map it directly to an index in
+the vocabulary. A common approach to this issue in natural language processing
+is to assign a special index which is used for all unknown tokens. However, in
+our case, each token has a type and a value, we therefore decide to use the type
+without its value if the type and value pair of the token cannot be found in the
+vocabulary. This means that for every type in the target programming language,
+we will have a token representing the type with no value in the vocabulary. When
+looking up the token in the vocabulary, we first look for a token with the same
+value and type. If we find one, we use its index, otherwise we fallback to
+looking for the token with the same type instead and use its index. As there are
+only a limited number of token types in a programming language, we are therefore
+sure to at least find the matching type.
+
+When using application specific tokens, the number of tokens will increase with
+the number of files used to generate the vocabulary, and we therefore need to
+set a threshold to the number of tokens we want to use. This threshold is set
+experimentally, and given $n$ as this threshold, our vocabulary will be composed
+of the $n$ most common tokens from the files that we used to generate the
+vocabulary.
+
+In algorithm~\ref{alg:generate-vocabulary}, we give a high-level overview of our
+vocabulary generation algorithm and in algorithm~\ref{alg:lookup-token} we show
+how we lookup a token in the vocabulary.
+
+\begin{algorithm}
+  \caption{\label{alg:generate-vocabulary}Vocabulary generation algorithm}
+  \begin{algorithmic}[1]
+    \Function{GenerateVocabulary}{\lstinline{sourceFiles},
+      \lstinline{includeValues}, \lstinline{maxSize}}
+      \State \lstinline{tokensCount} $\gets$ empty map
+      \For{\lstinline{file} in \lstinline{sourceFiles}}
+        \State \lstinline{tokens} $\gets$ \lstinline{tokenize(file)}
+        \For{\lstinline{token} in \lstinline{tokens}}
+          \If{\lstinline{(token.type, token.value)} $\notin$ \lstinline{tokensCount}}
+            \State \lstinline{tokensCount[(token.type, token.value)]} $\gets$ 0
+          \EndIf
+          \State Increment \lstinline{tokensCount[(token.type, token.value)]}
+          \If{\lstinline{includeValues}}
+            \If{\lstinline{(token.type, null)} $\notin$ \lstinline{tokensCount}}
+              \State \lstinline{tokensCount[(token.type, null)]} $\gets$ 0
+            \EndIf
+            \State Increment \lstinline{tokensCount[(token.type, null)]}
+          \EndIf
+        \EndFor
+      \EndFor
+      \State Sort \lstinline{tokensCount} by value
+      \State \lstinline{vocabulary} $\gets$ first \lstinline{maxSize} keys of \lstinline{tokensCount}
+      \State \lstinline{return vocabulary}
+    \EndFunction%
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{\label{alg:lookup-token}Token lookup}
+  \begin{algorithmic}[1]
+    \Function{LookupTokenIndex}{\lstinline{vocabulary}, \lstinline{token}}
+      \If{(token.type, token.value) $\in$ vocabulary}
+        \State \lstinline{return vocabulary.indexOf((token.type, token.value))}
+      \EndIf
+      \State \lstinline{return vocabulary.indexOf((token.type, null))}
+    \EndFunction%
+  \end{algorithmic}
+\end{algorithm}
 \section{\label{sec:code-clone-data}Code clone data for supervised learning}
