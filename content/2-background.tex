@@ -301,11 +301,101 @@ $\partial L(W)/\partial W^{(2)}$, multiply the result with a learning
 rate $\alpha$, which is a hyper parameter of the model, and subtract the result
 from the current value of $W^{(2)}$. This process is usually repeated until the
 error converges.
+\subsubsection{Evaluating a model}
+When training a neural network, or any kind of machine learning algorithm, we
+need a way to know if the model produces the results we expect or not --- a way
+to evaluate the quality of the model. The error, also called loss, we presented
+above can be an indicator of how well a performing but it is unfortunately not
+easy to interpret as depending on the used function the range can vary largely
+and it is difficult to significantly compare the values produced by different
+errors functions. We therefore tend to use measures other than the loss to
+evaluate the quality of the model. We will present different measures that
+are commonly used. We will only present measures used for binary classification
+here, but all of these measures can be generalized in some way to also work for
+multi-class classification.
+
+To define the different measure we will use, we will first introduce the notions
+of true positive, false positive, true negative and false negative.
+
+\begin{description}
+\item[True positive] A sample predicted as true and was actually true
+\item[False positive] A sample predicted as true but was actually false
+\item[True negative] A sample predicted as false and was actually false
+\item[False negative] A sample predicted as false but was actually true
+\end{description}
+
+We will assume we have a set of predicted samples $S$ with $|S| > 0$, and we
+will note the set of true positives as $T_p$, false positives as $F_p$, true
+negatives as $T_n$ and false negatives as $F_n$.
+
+One of the most common and simplest measure to understand is the accuracy of a
+model. The accuracy is, as shown in equation~\ref{eq:accuracy} the number of
+samples correctly predicted divided by the total number of samples predicted.
+
+\begin{equation}
+  \label{eq:accuracy}
+  \text{accuracy} = \frac{|T_p| + |T_n|}{|S|}
+\end{equation}
+
+The accuracy has a range of $[0, 1]$, and a higher accuracy is better.
+It is widely used to evaluate a model, but may have shortcomings depending on
+the dataset. A common issue with the accuracy measure is with unbalanced
+datasets --- a dataset with much more negative samples than positive samples, or
+vice-versa. For example, given a dataset with 99\% of negative samples, if a
+model returns a negative result for any sample, it will achieve 99\% accuracy
+but will not be useful at all.
+
+To be able to get a better understanding of a model performance, especially when
+the dataset is unbalanced, the precision and recall measures are often used. The
+precision of a model, given by equation~\ref{eq:precision} is the ratio of
+samples correctly predicted to the total number of samples that have been
+evaluated as positive.
+
+\begin{equation}
+  \label{eq:precision}
+  \text{precision} = P = \frac{|T_p|}{|T_p| + |F_p|}
+\end{equation}
+
+The precision also has a range of $[0, 1]$, with $1$ being the best achievable
+precision, meaning that all samples predicted as positives were actually
+positives. However, the precision by itself may not be enough: if a model
+predicts a single sample as positive, and the sample actually turns out to be
+positive, the precision will be $1$ but the model might be missing a lot of
+other positive samples. This is why the recall measure is also often used. The
+recall measure, given by equation~\ref{eq:recall}, is the ratio of correctly
+predicted samples to the total number of positive samples.
+
+\begin{equation}
+  \label{eq:recall}
+  \text{recall} = R = \frac{|T_p|}{|T_p| + |F_n|}
+\end{equation}
+
+The precision also has a range of $[0, 1]$, and $1$ is also being the best
+achievable recall. If a model predicts all samples to false, as in the example
+we gave for the accuracy, the recall will therefore be $0$, as obviously there
+will be no sample in the true positives set. However, the recall by itself is
+not enough, as predicting all samples to be positive would be enough to achieve
+a recall of $1$. The recall and precision are therefore usually used together.
+To avoid having to look at two different measures when evaluating a model, the
+F1-score --- which is the harmonic mean of the recall and the precision as shown
+in equation~\ref{eq:f1-score} --- is often used.
+\begin{equation}
+  \label{eq:f1-score}
+  \text{F1-score} = \dfrac{2}{\frac{1}{P} + \frac{1}{R}} = 2\frac{P\cdot R}{P + R}
+\end{equation}
+
+As the F1-score is the harmonic mean of two measures with a range of $[0, 1]$,
+it also has the same range, and as for the precision and recall, a higher
+F1-score means that the model is performing better.
+The main reason for using a harmonic mean instead of arithmetic mean is that it
+allows to penalize the score if one of the value is much lower than the other,
+therefore forcing both the recall and the precision to be high in order to have
+a high score.
 \subsection{Skipgram model}
 As mentioned above, skipgram is used to assign a vector in $\mathbb{R}^d$, known
 as a word embedding, to a word, where $d$ is the number of dimensions wanted for
 each word vector. This algorithm has first been presented in 2013 by Mikolov \&
-al. \cite{DBLP:journals/corr/MikolovSCCD13} and is now used in many natural
+al.~\cite{DBLP:journals/corr/MikolovSCCD13} and is now used in many natural
 language processing tasks as one of the word2vec algorithms.
 
 To understand the motivations behind this algorithm, and other algorithms used
@@ -313,7 +403,7 @@ to learn word embeddings, we must first understand how words used to be
 represented in natural language processing tasks. The most common approach was
 to use a finite vocabulary of size $|V|$, and to assign an identifier to each
 word in this vocabulary. For example, the word ``network'' could have the id
-$123$, and would be represented as a vector in $\{0,1\}^{|V|}$ where only index
+$123$, and would be represented as a vector in ${\{0,1\}}^{|V|}$ where only index
 $123$ of the vector would be $1$ and all the other indexes would be $0$. This
 approach has two disadvantages: each word is represented by a very large and
 sparse vector, and the representation of each word do not have any semantic
