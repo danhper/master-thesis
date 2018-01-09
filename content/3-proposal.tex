@@ -243,7 +243,7 @@ shown in their matrix form in equation~\ref{eq:sample-vocabulary}.
 Transforming an index $i$ in its vector representation therefore reduces to
 selecting the $i$th index of the matrix $W^l$, and the function $f_w$ can
 therefore be expressed as in equation~\ref{eq:embedding-func}, and is
-computationally inexpensive. In \ref{eq:embedding-func}, $W_i$ means selecting
+computationally inexpensive. In~\ref{eq:embedding-func}, $W_i$ means selecting
 the $i$th row of the matrix $W$.
 
 \begin{equation}
@@ -482,12 +482,12 @@ As a common format for ASTs, we chose to use the JSON format described in
 where each object contains the following properties.
 
 \begin{itemize}
-\item \lstinline{id} (\lstinline{int}, required) -  unique integer identifying
+\item \lstinline{id} (\lstinline{int}, required) ---  unique integer identifying
   current AST node
-\item \lstinline{type} (\lstinline{string}, required) - type of current AST node
-\item \lstinline{value} (\lstinline{string}, optional) - value of current AST
+\item \lstinline{type} (\lstinline{string}, required) --- type of current AST node
+\item \lstinline{value} (\lstinline{string}, optional) --- value of current AST
   node if any
-\item \lstinline{children} (\lstinline{list[int]}, optional) - children
+\item \lstinline{children} (\lstinline{list[int]}, optional) --- children
   \lstinline{id}s of current AST node if any
 \end{itemize}
 %

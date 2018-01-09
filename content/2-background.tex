@@ -460,7 +460,7 @@ the model. The parameters are shared across all time steps.
 \end{equation}
 Although this models seems promising, it suffers a major issue --- it is very
 difficult to capture long-term dependencies because of the vanishing gradients
-issue \cite{pascanu2013difficulty}. When computing the gradients to
+issue~\cite{pascanu2013difficulty}. When computing the gradients to
 back-propagate the error through the network, the gradient for $\partial x_t$
 with respect to $\partial x_k$, used in the chain rule, can be expanded as
 follow.
@@ -468,15 +468,15 @@ follow.
   \frac{\partial x_t}{\partial x_k} = \prod_{t \geq i > k} \frac{\partial x_i}{\partial x_{i-1}}
   \label{eq:rnn-vanishing-gradients}
 \end{equation}
-The term $\partial x_i/\partial x_{i-1}$ in equation
-\ref{eq:rnn-vanishing-gradients} is less then $1$ \cite{pascanu2013difficulty},
+The term $\partial x_i/\partial x_{i-1}$ in equation~%
+\ref{eq:rnn-vanishing-gradients} is less then $1$~\cite{pascanu2013difficulty},
 which means that the value will converge to $0$, and error will not propagate
 all the way through the network, hence the vanishing gradient issue.
 
-To overcome this issue, Long Short-Term Memory (LSTM) networks
+To overcome this issue, Long Short-Term Memory (LSTM) networks~%
 \cite{Hochreiter:1997:LSM:1246443.1246450} are often used instead of vanilla RNN
-described above. Instead of equation \ref{eq:rnn}, LSTMs use equations
-\ref{eq:lstm-1} to \ref{eq:lstm-6} to compute the output value. All $W$, $U$ and
+described above. Instead of equation~\ref{eq:rnn}, LSTMs use equations~%
+\ref{eq:lstm-1} to~\ref{eq:lstm-6} to compute the output value. All $W$, $U$ and
 $b$ in the equations are parameters of the model.
 \begin{align}
   f_t &= \sigma \left( W^{(f)}x_t + U^{(f)}h_{t - 1} + b^{(f)} \right) \label{eq:lstm-1}\\
@@ -494,15 +494,15 @@ In the above equations, $\sigma$ is the sigmoid function defined by equation
 \end{equation}
 and the different values have the following meaning.
 \begin{description}
-\item[$f_t$] - forget gate - how much of the previous state should be used
-\item[$i_t$] - input gate - how much of the input should be used
-\item[$u_t$] - update gate - the value of the current input
-\item[$o_t$] - output gate - how much of the current result should be outputted
-\item[$c_t$] - memory cell - the state of the network
-\item[$h_t$] - hidden layer - the output of the LSTM cell
+\item[$f_t$] --- forget gate --- how much of the previous state should be used
+\item[$i_t$] --- input gate --- how much of the input should be used
+\item[$u_t$] --- update gate --- the value of the current input
+\item[$o_t$] --- output gate --- how much of the current result should be outputted
+\item[$c_t$] --- memory cell --- the state of the network
+\item[$h_t$] --- hidden layer --- the output of the LSTM cell
 \end{description}
-Given $g^n(x_t, h_{t-1}) = W^{(n)}x_t + U^{(n)} h_{t-1} + b^{(n)}$, figure
-\ref{fig:lstm-cell} shows how the inputs flow in equations \ref{eq:lstm-1} to
+Given $g^n(x_t, h_{t-1}) = W^{(n)}x_t + U^{(n)} h_{t-1} + b^{(n)}$, figure~%
+\ref{fig:lstm-cell} shows how the inputs flow in equations~\ref{eq:lstm-1} to~%
 \ref{eq:lstm-6} to generate the outputs of an LSTM cell.
 \begin{figure}[tb]
   \begin{center}
@@ -513,7 +513,7 @@ Given $g^n(x_t, h_{t-1}) = W^{(n)}x_t + U^{(n)} h_{t-1} + b^{(n)}$, figure
 In an LSTM network, the state is not passed through $h_t$ as with a plain RNN,
 but through $c_t$, called the memory cell. Due to the additive nature of $c_t$,
 the error will also be propagated in an additive manner when computing the
-derivative for $c_t$ \cite{Hochreiter:1997:LSM:1246443.1246450}, avoiding the
+derivative for $c_t$~\cite{Hochreiter:1997:LSM:1246443.1246450}, avoiding the
 vanishing gradient problem encountered when using plain RNNs.
 %
 \section{Motivating example}
@@ -619,13 +619,13 @@ of information. For example, microservice architecture, where a service can be
 consumed by a multitude of other services, may also run into the same kind of
 issue.
 \subsubsection{\label{sssec:shortcomings} Shortcomings of existing approaches}
-Many clone detection systems, such as CCFinder
-\cite{Kamiya:2002:CMT:636188.636191}, DECKARD
-\cite{Jiang:2007:DSA:1248820.1248843} or SourcererCC
+Many clone detection systems, such as CCFinder~%
+\cite{Kamiya:2002:CMT:636188.636191}, DECKARD~%
+\cite{Jiang:2007:DSA:1248820.1248843} or SourcererCC~%
 \cite{Sajnani:2016:SSC:2884781.2884877} support multiple languages but are
 mostly designed to find clones within the same programming languages and not
 across them. Furthermore, token-based clone detection tools
-such as SourcererCC \cite{Sajnani:2016:SSC:2884781.2884877} are very efficient
+such as SourcererCC~\cite{Sajnani:2016:SSC:2884781.2884877} are very efficient
 to find clones which are introduced by copy-pasting, as these sort of clones
 are copy-pasted source code share many tokens, but less efficient when clones
 are introduced by replication of a same functionality by two different entities.
