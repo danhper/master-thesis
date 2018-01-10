@@ -49,16 +49,11 @@ vectors using the token representation learned by~\ref{it:unsup-model} and
 finally to feed the result to our LSTM-based model~\ref{it:sup-model}.
 
 In Section~\ref{sec:clone-detection}, we will describe in detail the model we
-used to detect code clones. In Section~\ref{sec:token-representation}
-to~\ref{sec:code-clone-data}, we will describe all the steps to fetch, process
-and transform the data in order to be able to feed it into our machine learning
-model presented in Section~\ref{sec:clone-detection}.
-In Section~\ref{sec:ast-generation}, we will describe the AST generation in
-order to be able to work with source code written in different programming
-languages, in Section~\ref{sec:token-representation}, we will explain how we
-assign a vector in $\mathbb{R}^d$ to each token in the source code, and finally
-in Section~\ref{sec:code-clone-data} we will describe what kind of data we use
-to train our model and why we chose this kind of data.
+used to detect code clones. In Section~\ref{sec:ast-generation}, we will
+describe the AST generation in order to be able to work with source code written
+in different programming languages and in
+Section~\ref{sec:token-representation}, we will explain how we assign a vector
+in $\mathbb{R}^d$ to each token in the source code.
 %
 \section{\label{sec:clone-detection}Code clone detection model}
 \subsection{Model overview}
@@ -547,7 +542,8 @@ to perform this task.
       \For{\lstinline{childId} in \lstinline{jsonNode.children}}
         \State \lstinline{childNode} $\gets$
         \lstinline{ASTFromJSONObject(jsonArray, childId)}
-        \State Append \lstinline{childNode} to \lstinline{node.children}
+        %\State Append \lstinline{childNode} to \lstinline{node.children}
+        \State \lstinline{node.children} $\overset{+}{\leftarrow}$ \lstinline{childNode}
       \EndFor
       \State \lstinline{return node}
     \EndFunction%
@@ -573,7 +569,7 @@ steps.
 \item Collect source code written in $l$
 \item Generate the vocabulary of $l$
 \item Generate data to train a skipgram model
-\item Train a neural network using the data generated in 2.
+\item Train a skipgram model using the data generated in 2.
 \end{enumerate}
 We show an overview of the token-level embedding generation process in
 figure~\ref{fig:embedding-generation}. In the rest of this section, we will
@@ -722,5 +718,140 @@ hash.
 \subsection{Generating data to train skipgram model}
 After generating the vocabulary, we need to generate data to train a skipgram
 model, presented in~\ref{ssec:skipgram-model}. In the context of natural
-language processing, the
-\section{\label{sec:code-clone-data}Code clone data for supervised learning}
+language processing, the input is usually considered as a sequence, and the
+context of a particular word is the words before and after this word in the
+sequence of words used for training. Furthermore, the distance between the word
+and its context is normally context by a single window size hyper-parameter.
+We could apply the same approach by treating a program as a sequence of tokens,
+but we decide to take advantage of the topological information contained by the
+AST, we decide to work on the AST rather than on a simple sequence of token. We
+therefore need to define the context of a word, or rather a token in our case,
+differently than for a sequence.
+
+In the context of a tree, a node is directly connected to its parent and its
+children. We can therefore define parents and children to be the context of a
+node. Depending on the use case, the siblings of a node could also be viewed as
+a viable candidate its context. A single window size parameter could be used to
+control how deep upward and downward should the context of a node be. However,
+while a node will only have a single parent, it can have any number of children,
+and therefore, while having a window size of $3$ for the ancestors would only
+generate $3$ nodes in the context, if every descendant of a node had $5$
+children, a window size of $3$ would generate $5^3 = 125$ nodes in the context,
+which would probably generate more noise than signal when trying to train a
+skipgram model. We therefore decide to use two different parameters to control
+the window size of the ancestors and the window size of the descendant when
+generating the data to train our skipgram model. When we do include siblings in
+the context, we decide to only use the direct siblings of the nodes and not to
+use the siblings of the ancestors, although this could also be another parameter
+of the algorithm. In
+algorithms~\ref{alg:generate-skipgram},~\ref{alg:generate-context}
+and~\ref{alg:find-descendants}, we describe the algorithms we use to generate
+the data to train a skipgram model.
+
+\begin{algorithm}
+  \caption{\label{alg:generate-skipgram}Data generation for skipgram model}
+  \begin{algorithmic}[1]
+    \Function{GenerateSkipgramData}{\lstinline{files}, \lstinline{vocabulary}, \lstinline{params}}
+      \State \lstinline{skipgramData} $\gets \{\}$
+      \For{\lstinline{file} in \lstinline{files}}
+        \State \lstinline{ast} $\gets$ \lstinline{GenerateAST(file)}
+        \For{\lstinline{node} in \lstinline{ast}}
+          \State \lstinline{nodeIndex} $\gets$ \lstinline{LookupTokenIndex(node)}
+          \State \lstinline{contextNodes} $\gets$
+          \lstinline{GenerateContext(node, params)}
+          \For{\lstinline{contextNode} in \lstinline{contextNodes}}
+            \State \lstinline{contextNodeIndex} $\gets$
+            \lstinline{LookupTokenIndex(contextNode)}
+            \State \lstinline{skipgramData} $\overset{+}{\leftarrow}$ \lstinline{(nodeIndex, contextNodeIndex)}
+          \EndFor%
+        \EndFor%
+      \EndFor%
+      \State \lstinline{return skipgramData}
+    \EndFunction%
+  \end{algorithmic}
+\end{algorithm}
+%
+\begin{algorithm}
+  \caption{\label{alg:generate-context}Context generation for an AST node}
+  \begin{algorithmic}[1]
+    \Function{GenerateContext}{\lstinline{node}, \lstinline{params}}
+      \State \lstinline{contextNodes} $\gets$ \lstinline{FindDescendants(node, params.descendantWindowSize, 0)}
+      \State \lstinline{parent} $\gets$ \lstinline{node.parent}
+      \State \lstinline{n} $\gets$ 0
+      \While{\lstinline{parent} is defined $\land$ \lstinline{n} $<$ \lstinline{params.ancestorWindowSize}}
+        \State \lstinline{contextNodes} $\overset{+}{\leftarrow}$ \lstinline{parent}
+        \State \lstinline{parent} $\gets$ \lstinline{parent.parent}
+        \State \lstinline{n} $\gets$ \lstinline{n + 1}
+      \EndWhile
+      \If{\lstinline{params.includeSiblings} $\land$ \lstinline{node.parent}
+        is defined}
+        \For{\lstinline{sibling} in \lstinline{node.parent.children}}
+          \State \lstinline{contextNodes} $\overset{+}{\leftarrow}$ \lstinline{sibling}
+        \EndFor
+      \EndIf
+      \State \lstinline{return contextNodes}
+    \EndFunction%
+  \end{algorithmic}
+\end{algorithm}
+%
+\begin{algorithm}
+  \caption{\label{alg:find-descendants}Find descendants for a node until given depth}
+  \begin{algorithmic}[1]
+    \Function{FindDescendants}{\lstinline{node}, \lstinline{maxDepth}, \lstinline{currentDepth}}
+      \If{\lstinline{currentDepth} $\geq$ \lstinline{maxDepth}}
+        \State \lstinline{return} $\{\}$
+      \EndIf
+      \State \lstinline{descendants} $\gets$ \lstinline{node.children}
+      \For{\lstinline{child} in \lstinline{node.children}}
+        \State \lstinline{childDescendants} $\gets$ \lstinline{FindDescendants(child, maxDepth, currentDepth+1)}
+        \State \lstinline{descendants} $\gets$ \lstinline{descendants} $\cup$ \lstinline{childDescendants}
+      \EndFor
+      \State \lstinline{return children}
+    \EndFunction
+  \end{algorithmic}
+\end{algorithm}
+%
+Algorithm~\ref{alg:generate-skipgram} takes as input a list of files written in
+the programming language for which we want to generate token embedding, the
+vocabulary extracted for this programming language and the parameters described
+above. It loops over all the nodes in the file, and uses
+algorithms~\ref{alg:generate-context} and~\ref{alg:find-descendants} to find all
+nodes in the context of the current node, and returns a list of pair of indexes
+where each pair represent a target node and a node in its context.
+Algorithm~\ref{alg:generate-context} takes as input a node and the parameters
+described above, and returns the set of nodes in the context of the given node.
+It first uses algorithm~\ref{alg:find-descendants} to find all the descendants
+of the node in the window given by the passed parameters, then find all the
+ancestors in the given window and finally add the siblings to the set of results
+if necessary. Algorithm~\ref{alg:find-descendants} takes a node, the maximum
+depth up to which descendants should be populated and the current depth ---
+which will initially be set to 0 --- and returns the set of descendants up to
+the passed maximum depth for the node. It first adds all the children of the
+current node to the set of descendants, then recurses through all the children
+until the current depth is equal to the maximum depth for which to generate
+descendants.
+\subsection{Training a skipgram model}
+Once the data is generated using
+algorithms~\ref{alg:generate-skipgram},~\ref{alg:generate-context}
+and~\ref{alg:find-descendants}, the last step needed to generate embedding is to
+actually train a skipgram model using the generated data.
+Algorithm~\ref{alg:generate-skipgram} generates pairs of indexes which can be
+directly fed to a neural network, and there is therefore no need for further
+pre-processing. To train the model, the vocabulary used is the same as the one
+used to generate the skipgram data and the size of the embedding is a hyper
+parameter of the model. The model is trained using a negative sampling objective
+shown in equation~\ref{eq:negative-sampling} as given
+in~\cite{DBLP:journals/corr/MikolovSCCD13}.
+%
+\begin{equation}
+  \label{eq:negative-sampling}
+  \log \sigma \left({v'_{w_O}}^T v_{w_I} \right) + \sum_{i=1}^k \mathbb{E}_{w_i \sim P_n(w)}
+  \left[ \log \sigma\left( {v'_{w_i}}^T v_{w_I} \right) \right]
+\end{equation}
+%
+In equation~\ref{eq:negative-sampling}, $v$ are the weights of the hidden
+layer, which will be used as embedding, $v'$ are the weights of the output
+layer, $w_I$ is an input token and $w_O$ is a token in its context. $w_i$ are
+the ``noise'' tokens which are randomly sampled from the vocabulary using a
+noise distribution $P_n$, for which we use a unigram distribution for reasons
+described in~\cite{DBLP:journals/corr/MikolovSCCD13}.
