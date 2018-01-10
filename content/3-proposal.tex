@@ -130,18 +130,19 @@ if (a < 1) {
 \end{figure}
 %
 \begin{table}
-  \centering
-  \begin{tabular}{cc}
-    Token & Index\\
-    \toprule%
-    \ttfamily{if} & 1\\
-    identifier & 2\\
-    integer & 3\\
-    \ttfamily{<} & 4\\
-    \ttfamily{return} & 5\\
-    \bottomrule%
-  \end{tabular}
   \caption{\label{tab:sample-vocabulary} Sample vocabulary}
+  \begin{center}
+    \begin{tabular}{cc}
+      Token & Index\\
+      \toprule%
+      \ttfamily{if} & 1\\
+      identifier & 2\\
+      integer & 3\\
+      \ttfamily{<} & 4\\
+      \ttfamily{return} & 5\\
+      \bottomrule%
+    \end{tabular}
+  \end{center}
 \end{table}
 
 The first instance of our AST to vector transformer is very simple. The idea is
@@ -252,17 +253,18 @@ vector of indexes in equation~\ref{eq:sample-indexes-vector} will be transformed
 in the matrix of equation~\ref{eq:sample-embbed-matrix}.
 
 \begin{table}
-  \centering
-  \begin{tabular}{cl}
-    Index & Embedding\\
-    \toprule
-    $1$ & $\begin{pmatrix}0.12 & -0.43 & 0.66\end{pmatrix}$\\
-    $2$ & $\begin{pmatrix}-0.81 & 0.01 & 0.28\end{pmatrix}$\\
-    $3$ & $\begin{pmatrix}0.91 & 0.33 & 0.47\end{pmatrix}$\\
-    $4$ & $\begin{pmatrix}-0.51 & -0.27 & -0.09\end{pmatrix}$\\
-    $5$ & $\begin{pmatrix}0.17 & 0.73 & -0.56\end{pmatrix}$\\
-  \end{tabular}
   \caption{\label{tab:sample-embedding} Sample embedding of dimension $3$}
+  \begin{center}
+    \begin{tabular}{cl}
+      Index & Embedding\\
+      \toprule
+      $1$ & $\begin{pmatrix}0.12 & -0.43 & 0.66\end{pmatrix}$\\
+      $2$ & $\begin{pmatrix}-0.81 & 0.01 & 0.28\end{pmatrix}$\\
+      $3$ & $\begin{pmatrix}0.91 & 0.33 & 0.47\end{pmatrix}$\\
+      $4$ & $\begin{pmatrix}-0.51 & -0.27 & -0.09\end{pmatrix}$\\
+      $5$ & $\begin{pmatrix}0.17 & 0.73 & -0.56\end{pmatrix}$\\
+    \end{tabular}
+  \end{center}
 \end{table}
 
 \begin{equation}
