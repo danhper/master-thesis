@@ -1,10 +1,10 @@
 \chapter{\label{ch:background}Background}
-\section{\label{sec:code-representation} Source code representation}
+\section{\label{sec:code-representation}Source code representation}
 The way we represent source code is very important in code clone detection,
 as it affects greatly the algorithms that may be used to detect clones.k
 In this section, we will explain the different ways in which source codes
 can be represented.
-\subsection{\label{ssec:string-representation} String representation}
+\subsection{\label{ssec:string-representation}String representation}
 The most common representation for a program is its string representation. It is
 the representation that developer actually uses when editing a program, and
 is therefore the easiest to obtain, as it is simply the raw program.
@@ -182,16 +182,16 @@ Text-based clone detection are based on the string representation of the program
 source code described in~\ref{ssec:string-representation}.
 While some text-based techniques use the source code almost as is and perform
 either line-by-line or global string comparisons to find clones, some techniques
-do apply some preprocessing steps \cite{Baker92aprogram}, such as removing white
+do apply some preprocessing steps~\cite{Baker92aprogram}, such as removing white
 spaces, before actually passing the source code to a string matching algorithm.
 \subsubsection{Token-based detection}
 Token-based detection techniques use the token representation of the program
 described in~\ref{ssec:token-representation}. Token-based approach are usually
 more robust to formatting and layout changes compared to text-based approaches.
 Some token-based clone detection tools, such as CCFinder
-\cite{Kamiya:2002:CMT:636188.636191} first normalize the tokens and replace all
+~\cite{Kamiya:2002:CMT:636188.636191} first normalize the tokens and replace all
 application specific tokens such as user-defined identifiers. On the other hand,
-other tools such as SourcererCC \cite{Sajnani:2016:SSC:2884781.2884877} keep
+other tools such as SourcererCC~\cite{Sajnani:2016:SSC:2884781.2884877} keep
 this information and use it to detect if multiple code fragments are clones or
 not.
 \subsubsection{Tree-based detection}
@@ -200,10 +200,10 @@ described in \ref{ssec:tree-representation}. These techniques first use a parser
 to generate the AST of a program, then the ASTs are searched for similar
 sub-trees and similar sub-trees are marked as clones. Searching for similar
 sub-trees using normal tree comparisons algorithms takes at least
-$\mathcal{O}\left(n^3\right)$ \cite{Baxter:1998:CDU:850947.853341}, where $n$ is
+$\mathcal{O}\left(n^3\right)$~\cite{Baxter:1998:CDU:850947.853341}, where $n$ is
 the number of nodes. Industrial software can have millions of line of codes, and
 therefore $n$ could be in the order of 10 million. To avoid this issue, many
-tree-based clone detection techniques \cite{Baxter:1998:CDU:850947.853341,
+tree-based clone detection techniques~\cite{Baxter:1998:CDU:850947.853341,
   Jiang:2007:DSA:1248820.1248843} use hash functions on sub-tress to find clones
 more efficiently. The idea is to assign each sub-tree a hash-value, and use this
 value, usually with bucketing techniques, to quickly search for code clones.
@@ -232,14 +232,14 @@ into a single scalar value, and a function $g$, called ``activation function''
 which transforms the result of $f$ and produces the unit output. This function
 is generally non-linear, otherwise the model ends up to be composed of only
 linear function and becomes as well a linear function.
-A unit of a neural network is illustrated in figure \ref{fig:neuron}.
+A unit of a neural network is illustrated in figure~\ref{fig:neuron}.
 \begin{figure}[tb]
   \centering\input{diagrams/nn-unit}
   \caption{\label{fig:neuron}Unit of a neural network}
 \end{figure}
 Each layer is connected to the next one by using the output of each unit of the
 previous layer as an input for each unit of the next layer. This connection is
-illustrated in figure \ref{fig:neural-net}.
+illustrated in figure~\ref{fig:neural-net}.
 \begin{figure}[tb]
   \centering\input{diagrams/neural-net}
   \caption{\label{fig:neural-net}Neural network}
@@ -247,7 +247,7 @@ illustrated in figure \ref{fig:neural-net}.
 
 The function $f$ is a matrix multiplication where all the weights of this matrix
 are parameters of the neural network model. Matrix weights are shared by all the
-units in a layer. In figure \ref{fig:neural-net}, given $W^{(1)} \in
+units in a layer. In figure~\ref{fig:neural-net}, given $W^{(1)} \in
 \mathbb{R}^{5\times 3}$ is the matrix weights of the hidden layer, $W_{mn}$ is
 the value at row $m$ and column $n$ in this matrix, $g_1$ is the activation
 function of the hidden layer, and $a_1, a_2$ and $a_3$ the output of each unit
@@ -277,8 +277,8 @@ consists in searching values for $W^{(1)}$ and $W^{(2)}$.
 The ``optimal'' weights of a neural network are defined with respect to a loss
 function representing how far the neural network output is from the expected
 correct answer, which is chosen depending on the task. Some common loss
-functions include mean squared error (MSE) \ref{eq:mse} or cross-entropy
-error (CEE) \ref{eq:cee}. Given a set of outputs $\hat{Y} = \{ \hat{y_1}, \cdots,
+functions include mean squared error (MSE)~\ref{eq:mse} or cross-entropy
+error (CEE)~\ref{eq:cee}. Given a set of outputs $\hat{Y} = \{ \hat{y_1}, \cdots,
 \hat{y_n} \}$ and their respective expected values $Y = \{ y_1, \cdots,
 y_n \}$, the errors are defined as follow.
 
@@ -444,7 +444,7 @@ While word embeddings work well to represent a single word, and to model the
 similarities between words, it is not enough to encode a whole sentence. There
 are many approaches to encode a sentence into a vector, and Recurrent Neural
 Networks (RNN) is one of them. The main idea of RNNs is to reuse the previous
-output as an input, as shown in \ref{fig:rnn}.
+output as an input, as shown in~\ref{fig:rnn}.
 \begin{figure}[tb]
   \begin{center}
     \includegraphics[width=8cm]{./images/rnn.pdf}
@@ -453,7 +453,7 @@ output as an input, as shown in \ref{fig:rnn}.
 \end{figure}
 Typically, each $x_t$ is a word in the sentence, encoded either as a
 one-hot vector or as a word embedding. In its simplest form, a RNN will compute
-its output using equation \ref{eq:rnn}, where $W$, $U$ and $b$ are parameters of
+its output using equation~\ref{eq:rnn}, where $W$, $U$ and $b$ are parameters of
 the model. The parameters are shared across all time steps.
 \begin{equation}
   h_t = \tanh\left( W x_t + U h_{t - 1} + b \right) \label{eq:rnn}
