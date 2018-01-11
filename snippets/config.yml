@@ -1,0 +1,38 @@
+references:
+  language_defaults: &language_defaults
+    embeddings_dimension: 50
+    output_dimensions: [30]
+    transformer_class_name: BiDFSTransformer
+    bidirectional_encoding: false
+
+model:
+  languages:
+    - name: java
+      <<: *language_defaults
+      input_length: 300
+      vocabulary: /path/to/java-vocab.csv
+      embeddings: /path/to/java-embeddings.csv
+    - name: python
+      <<: *language_defaults
+      input_length: 300
+      vocabulary: /path/to/python-vocab.csv
+      embeddings: /path/to/python-embeddings.csv
+
+  merge_mode: bidistance
+  merge_output_dim: 64
+  dense_layers: [64]
+  optimizer:
+    type: rmsprop
+
+generator:
+  submissions_path: /path/to/submissions.json
+  asts_path: /path/to/asts.json
+  split_ratio: [0.8, 0.1, 0.1]
+  shuffle: true
+  negative_samples: 4
+  negative_sample_distance: 0.2
+  class_weights: {0: 2.0, 1: 1.0}
+
+trainer:
+  batch_size: 128
+  epochs: 20

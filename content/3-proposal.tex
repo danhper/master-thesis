@@ -78,14 +78,13 @@ together.
 \end{figure}
 %
 In this section, we will first describe in details the computations done by the
-model. We will then explain how we train the model, then how use the trained
-model to predict if two code fragments are clones, and finally we will discuss
-about the different hyper parameters of the models.
+model. We will then explain how we train the model and how to use the trained
+model to predict if two code fragments are clones.
 %
 \subsection{Model computations}
 We will here formalize the computations each component of the model executes to
 produce the final prediction.
-\subsubsection{AST to vector transformer}
+\subsubsection{\label{sssec:ast-transformer} AST to vector transformer}
 As input, the model receives an AST, which is a tree structure. The AST to
 vector transformer takes this AST and maps it into a vector of integers, where
 each integer represents the index of the token in the AST in the vocabulary of
@@ -197,7 +196,7 @@ tree, the final output vector will have twice the dimension of the number of
 nodes in the tree. Therefore, if there are $n$ nodes in the tree, the output
 will be a vector in $\mathbb{N}^{2n}$.
 %
-\subsubsection{Token-level embedding layer}
+\subsubsection{\label{sssec:token-embedding-layer} Token-level embedding layer}
 When we transform an AST in to a vector using the above approach, we obtain a
 vector of indexes. As each index cannot be fed directly to the encoder, the two
 main approaches are to use a one-hot vector for the index, or to use a
@@ -282,10 +281,10 @@ in the matrix of equation~\ref{eq:sample-embbed-matrix}.
 In the matrix shown in equation~\ref{eq:sample-embbed-matrix}, each row is the
 embedding of the index in the original vector.
 %
-\subsubsection{LSTM-based encoder}
+\subsubsection{\label{sssec:lstm-encoder}LSTM-based encoder}
 As discussed previously, the output of the embedding layer will be a matrix of
-dimension $\mathbb{R}^{n\times d}$ where $d$ where $n$ depends on the size of
-the input AST and $d$ is the dimension of the embedding, which is a
+dimension $\mathbb{R}^{n\times d_w}$ where $n$ depends on the size of
+the input AST and $d_w$ is the dimension of the embedding, which is a
 hyper-parameter of the model. The purpose of the LSTM-based encoder layer is to
 transform this matrix into a vector in $d_e$, where $d_e$ is a hyper-parameter of
 the model, which captures the relation between the elements in the input matrix.
@@ -342,7 +341,7 @@ before, however, its output is not directly used but fed to another LSTM and
 only the uppermost LSTM result is used for the next step. We try to use 1 to 3
 stacked LSTM and chose the best value for our use case experimentally.
 %
-\subsubsection{Merge layer}
+\subsubsection{\label{sssec:merge-layer}Merge layer}
 Up to know, we have focused on how to encode a single AST into a vector in
 $\mathbb{R}^{d_e}$. However, our model takes two inputs, and produces a single
 output. We therefore need to combine these two inputs in some way that allows us
@@ -832,7 +831,7 @@ the passed maximum depth for the node. It first adds all the children of the
 current node to the set of descendants, then recurses through all the children
 until the current depth is equal to the maximum depth for which to generate
 descendants.
-\subsection{Training a skipgram model}
+\subsection{\label{ssec:train-skipgram}Training a skipgram model}
 Once the data is generated using
 algorithms~\ref{alg:generate-skipgram},~\ref{alg:generate-context}
 and~\ref{alg:find-descendants}, the last step needed to generate embedding is to
@@ -857,3 +856,6 @@ layer, $w_I$ is an input token and $w_O$ is a token in its context. $w_i$ are
 the ``noise'' tokens which are randomly sampled from the vocabulary using a
 noise distribution $P_n$, for which we use a unigram distribution for reasons
 described in~\cite{DBLP:journals/corr/MikolovSCCD13}.
+The dimension of $v$ is $\mathbb{R}^{|V|\times d}$ where $|V|$ is the size of
+the vocabulary and $d$ is the size of the embedding, which is a hyper-parameter
+of the model.
