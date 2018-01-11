@@ -618,14 +618,23 @@ very common with any kind of system where multiple actors consume a same source
 of information. For example, microservice architecture, where a service can be
 consumed by a multitude of other services, may also run into the same kind of
 issue.
-\subsubsection{\label{sssec:shortcomings} Shortcomings of existing approaches}
+\section{\label{sec:related-work}Related work}
 Many clone detection systems, such as CCFinder~%
 \cite{Kamiya:2002:CMT:636188.636191}, DECKARD~%
 \cite{Jiang:2007:DSA:1248820.1248843} or SourcererCC~%
 \cite{Sajnani:2016:SSC:2884781.2884877} support multiple languages but are
 mostly designed to find clones within the same programming languages and not
-across them. Furthermore, token-based clone detection tools
-such as SourcererCC~\cite{Sajnani:2016:SSC:2884781.2884877} are very efficient
+across them. Some other recent research use
+deep learning approach for clone detection such
+as~\cite{ijcai2017-423}
+or~\cite{DBLP:journals/corr/abs-1710-06159} use deep learning approaches to
+detect clones within a single programming language, but do not discuss the
+possibility to extend their method to detecting clones across programming
+languages. Other approaches such as~\cite{White:2016:DLC:2970276.2970326} can
+work across languages but focus on classifying programs, rather than on
+detecting code clones.
+Token-based clone detection tools such as
+SourcererCC~\cite{Sajnani:2016:SSC:2884781.2884877} are very efficient
 to find clones which are introduced by copy-pasting, as these sort of clones
 are copy-pasted source code share many tokens, but less efficient when clones
 are introduced by replication of a same functionality by two different entities.
