@@ -1,3 +1,46 @@
 \chapter{\label{ch:conclusion}Conclusion}
 \section{Summary}
+In this thesis, we presented a system capable to detect code clones across
+programs written in different programming languages.
+
+We gave some background about the motivations behind cross-language clone
+detection, and explained the difficulties that can be encountered when trying to
+achieve this task. In particular, we gave some explanation about why many
+approaches used for clone detection in a single programming languages cannot be
+applied directly, and why machine learning seems to be a good fit for this task.
+
+We then presented a supervised learning based machine approach to detect
+code clones. We introduced an LSTM based model which predicts if two programs
+are clones or not, we gave details about how we compute token embedding for
+a particular programming language, and showed how we can pre-process source code
+and use these embedding to feed data to our model.
+
+We introduced a novel dataset for cross-language code clone
+detection composed of programs written in Java and Python, containing around
+50000 files and implementing more than 500 different functionalities. We
+explained the motivation behind the choice of competitive programming to collect
+programs for this dataset, and gave details about the methodology used to
+generate the dataset.
+
+We then showed the results we obtained when evaluating our trained system using
+our dataset. We demonstrated that we are able to obtain a high recall, with
+scores around $0.7$, while keeping a reasonable precision --- with scores in the
+order of $0.3$ to $0.5$ --- given the motivation of our system. We also
+presented the results we obtained when training token-level embedding using a
+large set of data we fetched from GitHub, and described how it helps us achieve
+better results for our clone detection task.
 \section{Future work}
+Although we obtained some promising results for the task of cross-language code
+clone detection in terms of recall and precision, scalability is a major issue
+of our current approach. In the current implementation of our system, our model
+takes as input two code fragments, and determines if they are code clones or
+not. This works correctly when evaluating our model by feeding it pairs of
+clones directly. However, in a real-world use case, this means that the clone
+detection process would take $\mathcal{O}\left(n^2\right)$, where $n$ is the
+number of code fragments to evaluate. As code fragments are most commonly code
+blocks, and the number can therefore be in the order of $100$ millions in a
+large enough project, our method as is would not work. We should be able to
+modify our system to add a hash-layer as done for example
+in~\cite{ijcai2017-423} and use a method such as locality-sensitive
+hashing~\cite{Datar:2004:LHS:997817.997857} to reduce the order of our system to
+$\mathcal{O}(n)$, making it suitable for real-world applications.
