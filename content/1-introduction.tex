@@ -1,2 +1,86 @@
 \chapter{Introduction}
-sample paragraph
+
+Code clones are fragments of code, in a single or multiple programs, which are
+similar to each other. Code clones can emerge for various reasons, such as
+copy-pasting or implementing the same functionality as another developer. Code
+clones can decrease the maintainability of a program, as it becomes necessary to
+fix an error in all the places where the code was copied. However, detecting
+these code clones --- which is often referred to as the task of code clone
+detection --- is a difficult task and has been extensively researched in the
+literature. Some systems focus on finding clones inside a single project, while
+other task try to detect clones in larger ecosystem, by for example trying to
+detect clones in open-source development websites such as GitHub.
+With the variety of tools and approaches proposed for clone detection, the task
+of code clone detection has also found various applications, such as helping for
+code search, malware detection, copyright infringement detection, and many
+others. However, although there is a very large amount of tools that have been
+developed for the task of clone detection, most of these have been developed to
+detect clones in programs written in the same programming language, and the task
+of detecting code clones for programs written in different languages has not
+been studied as well in the literature.
+
+In recent years, the number of programming languages typically used by a
+developer has increased~\cite{programming-languages-over-time}, and developers
+tend to switch between programming languages much more often than a decade ago.
+There are many possible explanations to this phenomenon. One reason is that many
+companies use different languages for prototyping and production, and
+programmers therefore tend to use a scripting language such as Python to develop
+a prototype and a faster language such as C++ for the production code. Another
+explanation is that native applications often need to be written in different
+programming languages: iOS applications can be written in Swift or Objective C,
+Android applications require a language running on the JVM, such as Java or
+Kotlin, and application running in the browser need to be written in JavaScript.
+Yet another potential reason for this proliferation of languages is the
+democratization of micro services. As multiple parts of a single system often
+run in total isolation from each other in their own process or container,
+the need to write everything in a single language is not as high as it used to
+be with monolithic applications and teams therefore tend to choose the
+programming language the most adapted for a given task, and having a system with
+a websocket server running JavaScript code and another server performing
+machine learning tasks using Python is not rare.
+
+Given such a context, where it is common for a system to be implemented using
+different programming languages, code clones between part of the systems
+implemented in different programming languages will eventually emerge, causing
+the same kind of maintainability issues as code clones in a program written in
+the same programming language. To help improving this situation, the question of
+whether we can detect code clones in programs written in different programming
+languages is therefore important.
+
+In this thesis, our goal is to find a method to detect code clones written in
+different programming languages. Given the variety of languages and the
+potential difference between them, rule-based comparison approaches seem
+challenging to apply in this context. We therefore decided to focus on machine
+learning based techniques to perform this task. We design a system to perform
+this task, collect data to train the system, and evaluate our system to see how
+well it performs. In this thesis, we present two main contributions.
+
+\begin{itemize}
+\item We present a system based on supervised machine learning capable of
+  detecting clones across programming languages. We train and evaluate our model
+  using programs written in Python and Java, and obtain promising results in
+  terms of precision and recall. Our system being language agnostic, the only
+  requirement for being able to support new programming languages is to be able
+  to collect code clones data written in the desired language.
+\item We present a cross-language code clones dataset containing about 50000
+  files written in Java and Python. Although code clones dataset exist for
+  programming languages such as Java, this is to the best of our knowledge the
+  first dataset with cross-language code clones. We collected the data for this
+  dataset by scraping competitive programming websites and used the data
+  provided by the websites to extract code clones.
+\end{itemize}
+
+We also present in detail how we transform the programs to be able to feed them
+to a machine learning model and show how applying natural language processing
+methods can improve our results.
+
+The rest of this thesis is organized as follow. In
+Chapter~\ref{ch:background}, we give some background about the task we are
+trying to solve by presenting the necessary concepts, giving motivating examples
+and discussing the related work in this area. In Chapter~\ref{ch:proposal}, we
+give details about our proposal, we describe the different parts of our system
+and explain how our machine learning model works and how we train it. In
+Chapter~\ref{ch:experiments}, we describe the different experiments we
+performed, show and discuss the results we obtained. Finally, in
+Chapter~\ref{ch:conclusion}, we summarize what we have presented in this thesis
+and give some directions for future work in this area.
