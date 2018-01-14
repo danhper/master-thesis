@@ -109,55 +109,122 @@ dataset.
 \subsection{\label{ssec:clone-detection-hyper-params}Code clone detection model hyper-parameters}
 Our model contains many hyper-parameters that can vastly influence its
 performances while detecting clones. In listing~\ref{lis:model-config}, we show a
-sample configuration file that we actually use to train our model.
+sample configuration file that we actually use to train our model. The file is
+written using in YAML and is loaded by our system when training and evaluating
+the model. Although the file we show here is not complete, it contains the main
+settings that one might want to change when training a model.
 
 \begin{figure}
   \lstinputlisting[language={}, basicstyle=\ttfamily\footnotesize, caption=Model
   configuration file,label=lis:model-config]{./snippets/config.yml}
 \end{figure}
 
-We will describe the meaning of each parameter in our configuration file.
+We describe the meaning of each parameter in our configuration file in
+table~\ref{tab:hyper-parameters}.
 
-\begin{description}
-\item[{\small\texttt{transformer\_class\_name}}] The algorithm to used to encode
-  the AST into a vector as described in~\ref{sssec:ast-transformer}
-\item[{\small\texttt{vocabulary}}] The path to the extracted vocabulary
-\item[{\small\texttt{embeddings}}] The path to the trained token embedding. If
-  this parameter is not provided, embedding are randomly initialized
-\item[{\small\texttt{embeddings\_dimension}}] The dimension $d_w$ of the trained embedding
-  for the target programming language as described in~\ref{sssec:token-embedding-layer}
-\item[{\small\texttt{output\_dimensions}}] The output dimension $d_e$ of the
-  LSTM encoder described in~\ref{sssec:lstm-encoder}. If the length of the array
-  is greater than $1$, the LSTM will be stacked and the output dimension will be
-  the value of the last element of the list
-\item[{\small\texttt{bidirectional\_encoding}}] Whether or not to use a
-  bidirectional LSTM
-\item[{\small\texttt{name}}] The name of the programming language
-\item[{\small\texttt{input\_length}}] The maximum number of tokens per code
-  fragment. This restriction can be avoided at the cost of a performance penalty
-\item[{\small\texttt{merge\_mode}}] The algorithm to use to merge the two code
-  fragments as described in~\ref{sssec:merge-layer}
-\item[{\small\texttt{merge\_output\_dim}}]The output dimension to use for the merge layer. Currently only effective
-  when using equation~\ref{eq:bidistance-merge-layer} as the merge layer
-\item[{\small\texttt{dense\_layers}}] The number of hidden layers to use for the
-  final MLP and their number of units
-\item[{\small\texttt{optimizer}}] The optimizer to use to train the model
-\item[{\small\texttt{submissions\_path}}]The path of the training dataset
-  submissions metadata
-\item[{\small\texttt{asts\_path}}] The path of the training data ASTs generated
-  as described above
-\item[{\small\texttt{split\_ratio}}] The amount of data to use for training,
-  hyper-parameter tuning, and testing the model
-\item[{\small\texttt{shuffle}}] Whether or not to shuffle the data when training
-  the model
-\item[{\small\texttt{negative\_samples}}] The number of non-clone noise data ---
-  negative sample --- to generate per code clone
-\item[{\small\texttt{negative\_sample\_distance}}] The maximum distance ratio
-  between the size of the input and the size of the negative sample, to avoid
-  the model to try to detect clones by number of tokens
-\item[{\small\texttt{class\_weights}}] The weight to assign to positive and
-  negative samples. The higher the weight, the more an error will be penalized
-\item[{\small\texttt{batch\_size}}] The size of a batch when training the model
-\item[{\small\texttt{epochs}}] The number of epochs for which to train the model
-\end{description}
+\begin{table}
+  \caption{\label{tab:hyper-parameters}Clone detection model hyper-parameters}
+  \begin{center}
+    \begin{tabularx}{\linewidth}{c X l}
+      \toprule
+      Parameter & Description & Sample value\\
+      \toprule
+      \lstinline{transformer_class_name} & The algorithm to used to encode
+      the AST into a vector as described in~\ref{sssec:ast-transformer} & \lstinline{DFSTransformer}\\
+      \lstinline{vocabulary} & The path to the extracted vocabulary & \lstinline{vocab.tsv}\\
+      \lstinline{embeddings} & The path to the trained token embedding. If
+      this parameter is not provided, embedding are randomly initialized & \lstinline{embeddings.pickle}\\
+      \lstinline{embeddings_dimension} & The dimension $d_w$ of the trained
+      embedding for the target programming language as described
+      in~\ref{sssec:token-embedding-layer} & $100$\\
+      \lstinline{output_dimensions} & The output dimension $d_e$ of the
+      LSTM encoder described in~\ref{sssec:lstm-encoder}. If the length of the array
+      is greater than $1$, the LSTM will be stacked and the output dimension will be
+      the value of the last element of the list & \lstinline{[100, 50]}\\
+      \lstinline{bidirectional_encoding} & Whether or not to use a
+      bidirectional LSTM & \lstinline{true}\\
+      \lstinline{name} & The name of the programming language & java\\
+      \lstinline{input_length} & The maximum number of tokens per code
+      fragment. This restriction can be avoided at the cost of a performance
+      penalty & $1000$\\
+      \lstinline{merge_mode} & The algorithm to use to merge the two code
+      fragments as described in~\ref{sssec:merge-layer} & bidistance\\
+      \lstinline{merge_output_dim} & The output dimension to use for the
+      merge layer. Currently only effective when using
+      equation~\ref{eq:bidistance-merge-layer} as the merge layer & \lstinline{50}\\
+      \lstinline{dense_layers} & The number of hidden layers to use for the
+      final MLP and their number of units & \lstinline{[50, 50]}\\
+      \lstinline{optimizer} & The optimizer to use to train the model & rmsprop\\
+      \lstinline{submissions_path} & The path of the training dataset
+      submissions metadata & \lstinline{submissions.json}\\
+      \lstinline{asts_path} & The path of the training data ASTs generated
+      as described above & \lstinline{asts.json}\\
+      \lstinline{split_ratio} & The amount of data to use for training,
+      hyper-parameter tuning, and testing the model & \lstinline{[0.8, 0.1, 0.1]}\\
+    \end{tabularx}
+  \end{center}
+\end{table}
+\begin{table}
+  \begin{center}
+    \begin{tabularx}{\linewidth}{c X l}
+      \lstinline{shuffle} & Whether or not to shuffle the data when training
+      the model & \lstinline{true}\\
+      \lstinline{negative_samples} & The number of non-clone noise data ---
+      negative sample --- to generate per code clone & $4$\\
+      \lstinline{negative_sample_distance} & The maximum distance ratio
+      between the size of the input and the size of the negative sample, to avoid
+      the model to try to detect clones by number of tokens & $0.2$\\
+      \lstinline{class_weights} & The weight to assign to positive and
+      negative samples. The higher the weight, the more an error will be
+      penalized & \lstinline{\{0: 2.0, 1: 1.0\}}\\
+      \lstinline{batch_size} & The size of a batch when training the model & $256$\\
+      \lstinline{epochs} & The number of epochs for which to train the model & $10$\\
+      \bottomrule
+    \end{tabularx}
+  \end{center}
+\end{table}
+%
+Although there is a very large number of hyper-parameters, not all affect our
+model in the same way. For example, while the vocabulary we use, or the way we
+transform the AST into a vector affects greatly the performance of the model,
+other parameters such as the optimizer we use or the batch size do not are not
+as important. We will explain more in detail how each section in our
+configuration is used, and explain some of the decisions to be made when setting
+these parameters.
+
+The parameters under each object of the \lstinline{languages} section contains
+the necessary information to encode an AST into a vector for the given
+programming language. The vocabulary and embedding we pass will determine how
+each token is encoded into its vector representation. We will discuss further
+how these embedding are trained in
+Section~\ref{sec:token-generation-experiments}, but the most important decision
+being made for the embedding is if we want to use the values of the tokens or
+simply their types, resulting in a small vocabulary in the order of $100$ tokens
+in the first case, or a much larger vocabulary of thousands of tokens in the
+second. The input length is the maximum number of tokens for a single code
+fragment. We use this limit mainly for performance purpose, as we pad all the
+inputs to this size to be able to train our model using batches. Given our
+current implementation, removing this limits forces us to train the model a
+sample at a time, largely hurting performance. This shortcoming can be mitigated
+with techniques such as bucketing~\cite{DBLP:journals/corr/abs-1708-05604}, but
+we leave this for future work. The \lstinline{output_dimensions} and
+\lstinline{bidirectional_encoding} parameters control what kind of LSTM network
+will be used to encode the vectorized AST into a single vector.
+
+Other parameters under \lstinline{model} contain hyper-parameters on how the
+input vectors should be merged, as well as what kind of network to use to
+actually make the prediction. It also contains information about the optimizer
+to use, and may have hyper-parameters for the optimizer such as its learning
+rate.
+
+The part under \lstinline{generator} contains all the information necessary to
+generate data to train the model. \lstinline{submissions_path} and
+\lstinline{asts_path} are the paths to the submissions metadata and their
+encoded AST and all the data to train and evaluate the model will be loaded from
+their. The negative samples related settings as well as the class weights mostly
+affect the precision-recall trade-off, which we will discuss more in detail
+in~\ref{ssec:clone-detection-experiment}.
+\subsection{\label{ssec:clone-detection-experiment}Clone detection experiment}
+
+
 \section{\label{sec:token-generation-experiments}Token embedding generation}

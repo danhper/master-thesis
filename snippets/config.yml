@@ -9,12 +9,12 @@ model:
   languages:
     - name: java
       <<: *language_defaults
-      input_length: 300
+      input_length: 800
       vocabulary: /path/to/java-vocab.csv
       embeddings: /path/to/java-embeddings.csv
     - name: python
       <<: *language_defaults
-      input_length: 300
+      input_length: 800
       vocabulary: /path/to/python-vocab.csv
       embeddings: /path/to/python-embeddings.csv
 
