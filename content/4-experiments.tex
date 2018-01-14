@@ -225,6 +225,93 @@ their. The negative samples related settings as well as the class weights mostly
 affect the precision-recall trade-off, which we will discuss more in detail
 in~\ref{ssec:clone-detection-experiment}.
 \subsection{\label{ssec:clone-detection-experiment}Clone detection experiment}
-
-
+In this section, we will describe the experiments we run to evaluate our clone
+detection model.
 \section{\label{sec:token-generation-experiments}Token embedding generation}
+To generate token vector embedding and evaluate our results, we implemented the
+model and tools we described in Section~\ref{sec:token-representation}. All the
+tools implemented to generated token embedding are publicly available on
+GitHub\footnote{\url{https://github.com/tuvistavie/bigcode-tools}}, and made
+available through pip when
+possible\footnote{\url{https://pypi.python.org/pypi/bigcode-fetcher}}
+\footnote{\url{https://pypi.python.org/pypi/bigcode-embeddings}}.
+%
+\subsection{Embedding generation dataset}
+As described in Section~\ref{sec:token-representation}, data generation for
+token embedding is unsupervised, as opposed to the approach we take for clone
+detection. Getting data to train our model is therefore much easier. To train
+embedding for a particular programming language, the only thing we need is a
+large quantity of code written in this given language. This code should also be
+as much as possible diverse so we can capture the tokens of most major libraries
+and get a descent vector representation for their tokens.
+
+To generate datasets to train token embedding for Python and Java, we fetched
+code from GitHub using our \lstinline{bigcode-embeddings} tool, and then
+generated the ASTs for all the files using \lstinline{bigcode-astgen}.
+For Java, we chose to use all the projects written in Java and belonging to The
+Apache Software Foundation\footnote{\url{http://www.apache.org/}}. For Python,
+as we could not find any organization with a sufficient amount of source code,
+we projects which fulfilled the following conditions.
+
+\begin{itemize}
+\item Size between 100KB and 100MB
+\item Non-viral license (e.g. MIT, BSD)
+\item Not forks
+\end{itemize}
+
+We ordered the results by number of stars as a proxy of the popularity of the
+project and kept all the files which contained more than 10 tokens and less than
+10000 tokens. Although our AST generation tool supports both Python 2 and Python
+3, the produced AST may vary slightly and we therefore decided to use only
+Python 3 for this experiment.
+
+We show some metrics for our Java dataset in
+table~\ref{tab:java-embedding-dataset} and for our Python dataset in
+table~\ref{tab:python-embedding-dataset}.
+
+\begin{table}
+  \caption{\label{tab:java-embedding-dataset}Embedding generation Java dataset
+    metrics}
+  \begin{center}
+    \begin{tabular}{r r}
+      \toprule
+      Metric & Value\\
+      \toprule
+      Projects count & 1,027\\
+      Files count & 476,685\\
+      Lines count & 80,367,840\\
+      Tokens count & 301,930,231\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\begin{table}
+  \caption{\label{tab:python-embedding-dataset}Embedding generation Python
+    dataset metrics}
+  \begin{center}
+    \begin{tabular}{r r}
+      \toprule
+      Metric & Value\\
+      \toprule
+      Projects count & 879\\
+      Files count & 131,506\\
+      Lines count & 55,796,594\\
+      Tokens count & 89,757,436\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{table}
+
+\subsection{Vocabulary generation results}
+As discussed in Section~\ref{sec:token-representation}, the first step when
+creating token embedding is to generate a vocabulary for the given programming
+language. We will here present the results for the different vocabulary we
+generated. For both Java and Python, we generated 3 different kinds of
+vocabularies:
+
+\begin{enumerate}
+\item Vocabulary without token values
+\item Vocabulary of $500$ tokens with values
+\item Vocabulary of $10000$ tokens with values
+\end{enumerate}
