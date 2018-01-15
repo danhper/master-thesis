@@ -306,7 +306,7 @@ table~\ref{tab:python-embedding-dataset}.
 \subsection{Vocabulary generation results}
 As discussed in Section~\ref{sec:token-representation}, the first step when
 creating token embedding is to generate a vocabulary for the given programming
-language. We will here present the results for the different vocabulary we
+language. We will here present the results for the different vocabularies we
 generated. For both Java and Python, we generated 3 different kinds of
 vocabularies:
 
@@ -315,3 +315,159 @@ vocabularies:
 \item Vocabulary of $500$ tokens with values
 \item Vocabulary of $10000$ tokens with values
 \end{enumerate}
+
+The vocabulary without token values only contains only the type of each token,
+for example, \lstinline{ImportStmt} in Java, or \lstinline{FunctionDef} in
+Python. In figures~\ref{fig:no-values-vocabulary-distribution}
+to~\ref{fig:with-values-vocabulary-distribution}, we show the relation between
+the rank of a token in the vocabulary, and its number of appearances. We use a
+log scale for both axes. An interesting property we find is that, when using
+values of the tokens, this relation and by extension the distribution of the
+frequency tokens in a programming language follows the Zipf's
+law~\cite{piantadosi2013zipf}, in the same way as natural languages do.
+When we exclude the tokens, and therefore only use the type of each token to
+generate the vocabulary, the law seems to hold only until the few last tokens of
+each language, which indicates that there is a small number of types in each
+language that are almost never used. Regardless of the fact that we use or not
+values of each token, the distribution is almost the same for both Python and
+Java, and the fact that the curve for Java is above the one for Python comes
+from the fact that we extracted more tokens for Java and we did not normalize
+the results, as it was not needed for the rest of the embedding generation.
+
+Given the distribution of the token frequency in both programming languages
+follow closely the frequency found in natural languages, we can expect that a
+model such as skipgram which works well with natural languages to also work
+here.
+
+\begin{figure}
+  \centering\includegraphics[width=14cm]{images/distribution-without-values.png}
+  \caption{\label{fig:no-values-vocabulary-distribution}Tokens without value
+    relation between token frequency and rank}
+\end{figure}
+
+\begin{figure}
+  \centering\includegraphics[width=14cm]{images/distribution-with-values.png}
+  \caption{\label{fig:with-values-vocabulary-distribution}Tokens with value
+    relation between token frequency and rank}
+\end{figure}
+
+\subsection{Embedding generation experiments}
+Once we created our vocabulary, we want to assign a vector in $\mathbb{R}^{d_w}$
+to each token in our vocabulary. Given the purpose of generating these embedding
+is to encode a program so that we can detect clone, the main requirement of our
+embedding is that tokens which are semantically similar, such that for example
+\lstinline{while} and \lstinline{for} have a small distance, while unrelated
+tokens have a large distance.
+
+\begin{table}
+  \caption{\label{tab:embedding-hyper-parameters} Experiment settings for
+    embedding generation}
+  \begin{center}
+    \begin{tabularx}{\linewidth}{c X l}
+      \toprule
+      Parameter & Description & Sample value\\
+      \toprule
+      \lstinline{vocabulary} & The vocabulary to use for generating the
+      embeddings & \lstinline{no-id.tsv}\\
+      \lstinline{ancestors_window_size} & The window size for the number of
+      ancestors & $2$\\
+      \lstinline{descendants_window_size} & The window size for the number of
+      descendants & $1$\\
+      \lstinline{include_siblings} & Whether or not to include siblings &
+      \lstinline{true}\\
+      \lstinline{embeddings_size} & The dimension $d_w$ of the embeddings & $100$\\
+      \bottomrule
+    \end{tabularx}
+  \end{center}
+\end{table}
+
+In table~\ref{tab:embedding-hyper-parameters}, we describe the different
+settings of our experiment. We only show the most important
+for the task of generate the embedding and leave out settings such as the batch
+size, the optimizer or the learning rate.
+
+Given the unsupervised nature of the model, it is difficult to evaluate
+quantitatively the quality of the results. While some methods exist to evaluate
+word embedding in natural languages context~\cite{schnabel2015eval}, the
+technique uses the nature of the language and is therefore not directly
+applicable to programming languages. We are not aware of such a method to
+evaluate embedding in programming languages context. We therefore decided to
+evaluate quantitatively the results we obtained for the embedding creation task
+by manually inspecting the relation between different tokens, and judging of the
+quality of the embedding using these relationship. In particular, when training
+embedding for vocabulary where token do not have values, we tried to cluster the
+tokens using k-means\cite{Kanungo:2002:EKC:628329.628801} and looked at how much
+the clusters made sense --- for example, are statements and expressions in
+different clusters.
+
+We tried to train the embedding using a large set of values for the different
+parameters we had. We tried window sizes from $0$ to $5$ for the ancestors, from
+$0$ to $4$ for the descendants, we tried to use siblings and we tried embedding
+sizes of $10$, $20$, $50$, $100$ and $200$. When increasing the size of the
+embedding did not present any significant benefit, we kept the smaller size. In
+table~\ref{tab:no-value-embedding-params}, we show the parameters we found to
+work best for training embedding for vocabulary containing values and vocabulary
+with types only.
+
+\begin{table}
+  \caption{\label{tab:no-value-embedding-params}Embedding experiment optimal settings}
+  \begin{center}
+    \begin{tabularx}{\linewidth}{c c c}
+      \toprule
+      Parameter & Vocab without values & Vocab with values\\
+      \toprule
+      \lstinline{ancestors_window_size} & $2$ & $3$\\
+      \lstinline{descendants_window_size} & $1$ & $2$\\
+      \lstinline{include_siblings} & \lstinline{false} & \lstinline{false}\\
+      \lstinline{embeddings_size} & $50$ & $100$\\
+      \bottomrule
+    \end{tabularx}
+  \end{center}
+\end{table}
+
+Given the variety of tokens is much larger when we include the values of the
+tokens, the need for a larger window is logical, as the number of contexts in
+which a single token could appear is much larger. However, increasing the window
+size too much seems to create too much noise, and did not yield better results.
+Likewise, we suspect that including the siblings generated more noise than
+signal when training our model.
+
+In figure~\ref{fig:python-embeddings} and~\ref{fig:java-embeddings}, we show the
+results we obtained when projecting the trained embeddings in a 2 dimensions
+space using PCA\cite{DBLP:journals/corr/Shlens14}. We only plotted a subset of
+the points in the vocabulary to keep the figure readable.
+
+\begin{figure}
+  \centering\includegraphics[height=9cm]{images/java-embeddings.png}
+  \caption{\label{fig:java-embeddings}Java clustered embedding 2D projection for vocabulary without
+  values}
+\end{figure}
+
+\begin{figure}
+  \centering\includegraphics[height=9cm]{images/python-embeddings.png}
+  \caption{\label{fig:python-embeddings}Python clustered embedding 2D projection for vocabulary without
+  values}
+\end{figure}
+
+There are a few interesting things to notice in the results we obtained in
+figures~\ref{fig:python-embeddings} and~\ref{fig:java-embeddings}. First, the
+clustering we obtain seems quite close to what we could expect when thinking
+about the different types of tokens present in the AST. For example, for Java,
+All the statements are part of the same cluster, and the only expression which
+belongs to this cluster is the \lstinline{LambdaExpr}, which was introduced
+in recent versions of Java and appears way less often than most other tokens,
+which could explain why it was not clustered correctly. The expressions are also
+mostly in the same cluster, and literal expressions, such as
+\lstinline{IntegerLiteralExpr} and \lstinline{StringLiteralExpr} are close to
+each other, while other related tokens such as \lstinline{ThisExpr} and
+\lstinline{SuperExpr} are in the same cluster but further away in the vector
+space. The results are similar for Python, where most language constructs, such
+as \lstinline{While} or \lstinline{Try} are clustered together, while all the
+comparison operators are in another cluster.
+Another interesting point is the difference in the relationship of the tokens
+between both programming languages. In particular, while \lstinline{While} and
+\lstinline{For} appear almost at the same point in the vector space for Java,
+which means that both tokens are very similar, the same two tokens are
+much further away in Python. This seems a reasonable result to obtain as Java's
+\lstinline{while} and \lstinline{for} are indeed interchangeable, while in
+Python, these two constructs have different semantics.
