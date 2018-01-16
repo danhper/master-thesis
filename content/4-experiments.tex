@@ -122,63 +122,62 @@ settings that one might want to change when training a model.
 We describe the meaning of each parameter in our configuration file in
 table~\ref{tab:hyper-parameters}.
 
-\begin{table}
+\begin{table}[p]
   \caption{\label{tab:hyper-parameters}Clone detection model hyper-parameters}
   \begin{center}
-    \begin{tabularx}{\linewidth}{c X l}
+    \begin{tabularx}{\linewidth}{c c X l}
       \toprule
-      Parameter & Description & Sample value\\
+      Parameter & Notation & Description & Sample value\\
       \toprule
-      \lstinline{transformer_class_name} & The algorithm to used to encode
+      \lstinline{transformer_class_name} & $f_t$ & The algorithm to used to encode
       the AST into a vector as described in~\ref{sssec:ast-transformer} & \lstinline{DFSTransformer}\\
-      \lstinline{vocabulary} & The path to the extracted vocabulary & \lstinline{vocab.tsv}\\
-      \lstinline{embeddings} & The path to the trained token embedding. If
+      \lstinline{vocabulary} & & The path to the extracted vocabulary & \lstinline{vocab.tsv}\\
+      \lstinline{vocabulary_size} & $|V|$ & The size of the vocabulary & $500$\\
+      \lstinline{embeddings} & & The path to the trained token embedding. If
       this parameter is not provided, embedding are randomly initialized & \lstinline{embeddings.pickle}\\
-      \lstinline{embeddings_dimension} & The dimension $d_w$ of the trained
-      embedding for the target programming language as described
-      in~\ref{sssec:token-embedding-layer} & $100$\\
-      \lstinline{output_dimensions} & The output dimension $d_e$ of the
-      LSTM encoder described in~\ref{sssec:lstm-encoder}. If the length of the array
-      is greater than $1$, the LSTM will be stacked and the output dimension will be
-      the value of the last element of the list & \lstinline{[100, 50]}\\
-      \lstinline{bidirectional_encoding} & Whether or not to use a
+      \lstinline{embeddings_dimension} & $d_w$ & Dimension of the embedding for
+      target language & $100$\\
+      \lstinline{output_dimensions} & $d_e$ & Dimension of the
+      LSTM encoder. If the size is greater than $1$, the LSTM will be stacked
+      and the output dimension will be the value of the last element of the list
+      & \lstinline{[100, 50]}\\
+      \lstinline{bidirectional_encoding} & $f_{e_b}$ & Whether or not to use a
       bidirectional LSTM & \lstinline{true}\\
-      \lstinline{name} & The name of the programming language & java\\
-      \lstinline{input_length} & The maximum number of tokens per code
+      \lstinline{name} & & The name of the programming language & java\\
+      \lstinline{input_length} & $|X|$ & The max. number of tokens per code
       fragment. This restriction can be avoided at the cost of a performance
       penalty & $1000$\\
-      \lstinline{merge_mode} & The algorithm to use to merge the two code
-      fragments as described in~\ref{sssec:merge-layer} & bidistance\\
-      \lstinline{merge_output_dim} & The output dimension to use for the
-      merge layer. Currently only effective when using
-      equation~\ref{eq:bidistance-merge-layer} as the merge layer & \lstinline{50}\\
-      \lstinline{dense_layers} & The number of hidden layers to use for the
-      final MLP and their number of units & \lstinline{[50, 50]}\\
-      \lstinline{optimizer} & The optimizer to use to train the model & rmsprop\\
-      \lstinline{submissions_path} & The path of the training dataset
-      submissions metadata & \lstinline{submissions.json}\\
-      \lstinline{asts_path} & The path of the training data ASTs generated
-      as described above & \lstinline{asts.json}\\
-      \lstinline{split_ratio} & The amount of data to use for training,
-      hyper-parameter tuning, and testing the model & \lstinline{[0.8, 0.1, 0.1]}\\
+      \lstinline{merge_mode} & $f_m$ & Algorithm to use to merge the two code
+      fragments as described in~\ref{sssec:merge-layer} & bidistance
     \end{tabularx}
   \end{center}
 \end{table}
-\begin{table}
+\begin{table}[p]
   \begin{center}
-    \begin{tabularx}{\linewidth}{c X l}
-      \lstinline{shuffle} & Whether or not to shuffle the data when training
+    \begin{tabularx}{\textwidth}{c c X l}
+      \lstinline{merge_output_dim} & $d_o$ & Output dimension to use for the
+      merge layer. Currently only effective when using
+      equation~\ref{eq:bidistance-merge-layer} as the merge layer & \lstinline{50}\\
+      \lstinline{dense_layers} & $d(f_p)$ & The number of hidden layers to use for the
+      final MLP and their number of units & \lstinline{[50, 50]}\\
+      \lstinline{optimizer} & & The optimizer to use to train the model & rmsprop\\
+      \lstinline{submissions_path} & & The path of the submissions metadata & \lstinline{submissions.json}\\
+      \lstinline{asts_path} & & The path of the training data ASTs generated
+      as described above & \lstinline{asts.json}\\
+      \lstinline{split_ratio} & & The amount of data to use for training,
+      hyper-parameter tuning, and testing the model & \lstinline{[0.8, 0.1, 0.1]}\\
+      \lstinline{shuffle} & & Whether or not to shuffle the data when training
       the model & \lstinline{true}\\
-      \lstinline{negative_samples} & The number of non-clone noise data ---
+      \lstinline{negative_samples} & $|S_n|$ & The number of non-clone noise data ---
       negative sample --- to generate per code clone & $4$\\
-      \lstinline{negative_sample_distance} & The maximum distance ratio
+      \lstinline{negative_sample_distance} & $\Delta S_n$ & The maximum distance ratio
       between the size of the input and the size of the negative sample, to avoid
       the model to try to detect clones by number of tokens & $0.2$\\
-      \lstinline{class_weights} & The weight to assign to positive and
+      \lstinline{class_weights} & $L_w$ & The weight to assign to positive and
       negative samples. The higher the weight, the more an error will be
       penalized & \lstinline{\{0: 2.0, 1: 1.0\}}\\
-      \lstinline{batch_size} & The size of a batch when training the model & $256$\\
-      \lstinline{epochs} & The number of epochs for which to train the model & $10$\\
+      \lstinline{batch_size} &  & The size of a batch when training the model & $256$\\
+      \lstinline{epochs} & & The number of epochs to train the model & $10$\\
       \bottomrule
     \end{tabularx}
   \end{center}
@@ -227,6 +226,109 @@ in~\ref{ssec:clone-detection-experiment}.
 \subsection{\label{ssec:clone-detection-experiment}Clone detection experiment}
 In this section, we will describe the experiments we run to evaluate our clone
 detection model.
+We will here describe the experiment we run, show the results and give an
+interpretation of the results we obtained.
+
+First, we prepared the dataset to train our model by splitting the data we
+described in~\ref{ssec:clone-detection-dataset} into training set containing
+80\% of the data, the cross-validation set used to tune our hyper parameters
+containing 10\% of the data, and finally the test set used to give a final
+evaluation of our model. For both training, cross-validation and test, we treat
+files implementing a solution to the same problem as clones, and randomly choose
+$n$ samples from files implementing a solution to a different problem to use as
+negative inputs to our model. We make the number of samples vary during training
+but fix this number to $4$ samples for cross-validation, in order to be able to
+compare the performance of the different models on the same input data.
+
+We trained models to detect clone between Java and Python source code, as well
+as models to perform clone detection between source fragments written in Java.
+The main motivation for trying to run clone detection is Java is to be able to
+compare our results with other clone detection tools. In
+tables~\ref{tab:java-python-model-params} and~\ref{tab:java-java-model-params},
+we show the hyper parameters we used for training models for respectively
+Java/Python code clone detection and Java/Java code clone detection. Given the
+large number of parameters which we tried when training the models, we only show
+a subset including models which yielded the best results, as wee as models which
+we would like to discuss further in the results interpretation. Our models are
+sorted using the F1-score. In tables~\ref{tab:java-python-model-results}
+and~\ref{tab:java-java-model-results}, we show different metrics for each model
+when tested on the cross-validation set.
+
+\begin{table}
+  \caption{\label{tab:java-python-model-params}Java/Python clone detection
+    models parameters}
+  \begin{center}
+    \begin{tabularx}{\linewidth}{c Y c Y c Y c c Y Y c c}
+      \toprule
+      $n$ & $|V|$ & $d_w$ & $d_e$ & $f_{e_b}$ & $d(f_p)$ & $f_t$ & $|S_n|$ & $L_w$ & $f_m$ & $\Delta S_n$\\
+      \toprule
+      $1$ & $10000$ & $100$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $2$ & $10000$ & $100$ & $\{50,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $3$ & $10000$ & $100$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $4$ & $-$ & $50$ & $\{50\}$ & $t$ & $\{64,64\}$ & $f_{t_1}$ & $2$ & $\{1.0,1.0\}$ & $f_{m_1}$ & $-$\\
+      $5$ & $-$ & $50$ & $\{50\}$ & $t$ & $\{64,64\}$ & $f_{t_1}$ & $1$ & $\{1.0,1.0\}$ & $f_{m_1}$ & $-$\\
+      $6$ & $-$ & $50$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      \bottomrule
+    \end{tabularx}
+  \end{center}
+\end{table}
+%
+\begin{table}
+  \caption{\label{tab:java-python-model-results}Java/Python clone detection
+    models results}
+  \begin{center}
+    \begin{tabularx}{\linewidth}{c Y Y Y Y}
+      \toprule
+      $n$ & F1-score & Precision & Recall & Accuracy\\
+      \toprule
+      $1$ & $0.66$ & $0.55$ & $0.83$ & $0.83$\\
+      $2$ & $0.63$ & $0.51$ & $0.80$ & $0.80$\\
+      $3$ & $0.56$ & $0.42$ & $0.82$ & $0.73$\\
+      $4$ & $0.55$ & $0.40$ & $0.84$ & $0.71$\\
+      $5$ & $0.52$ & $0.38$ & $0.84$ & $0.68$\\
+      $6$ & $0.49$ & $0.35$ & $0.80$ & $0.66$\\
+      \bottomrule
+    \end{tabularx}
+  \end{center}
+\end{table}
+%
+\begin{table}
+  \caption{\label{tab:java-java-model-params}Java/Java clone detection
+    models parameters}
+  \begin{center}
+    \begin{tabularx}{\linewidth}{c Y c Y c Y c c Y Y c c}
+      \toprule
+      $n$ & $|V|$ & $d_w$ & $d_e$ & $f_{e_b}$ & $d(f_p)$ & $f_t$ & $|S_n|$ & $L_w$ & $f_m$ & $\Delta S_n$\\
+      \toprule
+      $1$ & $10000$ & $100$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $2$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{2.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $3$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{4.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $4$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $5$ & $-$ & $50$ & $\{30\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $6$ & $-$ & $50$ & $\{30\}$ & $f$ & $\{64\}$ & $f_{t_2}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      \bottomrule
+    \end{tabularx}
+  \end{center}
+\end{table}
+%
+\begin{table}
+  \caption{\label{tab:java-java-model-results}Java/Java clone detection
+    models results}
+  \begin{center}
+    \begin{tabularx}{\linewidth}{c Y Y Y Y}
+      \toprule
+      $n$ & F1-score & Precision & Recall & Accuracy\\
+      \toprule
+      $1$ & $0.76$ & $0.67$ & $0.88$ & $0.89$\\
+      $2$ & $0.69$ & $0.56$ & $0.89$ & $0.84$\\
+      $3$ & $0.68$ & $0.64$ & $0.73$ & $0.86$\\
+      $4$ & $0.66$ & $0.53$ & $0.88$ & $0.82$\\
+      $5$ & $0.62$ & $0.51$ & $0.79$ & $0.80$\\
+      $6$ & $0.49$ & $0.35$ & $0.84$ & $0.65$\\
+      \bottomrule
+    \end{tabularx}
+  \end{center}
+\end{table}
 \section{\label{sec:token-generation-experiments}Token embedding generation}
 To generate token vector embedding and evaluate our results, we implemented the
 model and tools we described in Section~\ref{sec:token-representation}. All the
@@ -412,7 +514,7 @@ with types only.
 \begin{table}
   \caption{\label{tab:no-value-embedding-params}Embedding experiment optimal settings}
   \begin{center}
-    \begin{tabularx}{\linewidth}{c c c}
+    \begin{tabularx}{\linewidth}{X X X}
       \toprule
       Parameter & Vocab without values & Vocab with values\\
       \toprule

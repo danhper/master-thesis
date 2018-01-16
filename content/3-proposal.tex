@@ -144,10 +144,10 @@ if (a < 1) {
   \end{center}
 \end{table}
 
-The first instance of our AST to vector transformer is very simple. The idea is
-simply to traverse the tree using a depth-first, pre-order tree traversal. At
-each node in the tree, we look up the index of the node token in the vocabulary,
-and we append the index to the output vector.
+The first instance of our AST to vector transformer, $f_{t_1}$ is very simple.
+The idea is simply to traverse the tree using a depth-first, pre-order tree
+traversal. At each node in the tree, we look up the index of the node token in
+the vocabulary, and we append the index to the output vector.
 
 In our example above, the algorithm will start at the \lstinline{if} node, it
 will lookup the index of the node in the vocabulary, which in this case is $1$,
@@ -165,11 +165,11 @@ number of nodes in the input AST.
 Although the first instance of our AST to vector transformer is very simple and
 straightforward, the main disadvantage is that it completely loses information
 about the topology of the input tree. To mitigate this issue, we also
-implemented another algorithm which tries to partially preserve the topology of
-the tree in the output vector. In the above example, \lstinline{if} has two
-children nodes: \lstinline{<} and \lstinline{return}, therefore the distance
-inside the tree topology between \lstinline{if} and both of these nodes is $1$.
-However, in the output vector, the distance between \lstinline{if} and
+implemented another function $f_{t_2}$ which tries to partially preserve the
+topology of the tree in the output vector. In the above example, \lstinline{if}
+has two children nodes: \lstinline{<} and \lstinline{return}, therefore the
+distance inside the tree topology between \lstinline{if} and both of these nodes
+is $1$. However, in the output vector, the distance between \lstinline{if} and
 \lstinline{<} is $1$, but the distance between \lstinline{if} and
 \lstinline{return} is $4$. For such a simple case, the distance is still short
 enough for the neural to be able to capture relationship between these elements,
@@ -217,7 +217,7 @@ language $l$ is therefore a function $f_w^l$ with the following dimensions.
 
 Such embedding are actually represented by a matrix $W^l$ which has dimensions
 of $\mathbb{R}^{|V|\times d_w}$ where $|V|$ is the size programming language $l$
-vocabulary, and $d_2$ is the dimension of the embedding.
+vocabulary, and $d_w$ is the dimension of the embedding.
 Sample values for embedding of dimension $d_w = 3$ are show in
 table~\ref{tab:sample-vocabulary}.
 The sample embedding given in table~\ref{tab:sample-vocabulary} are
@@ -359,7 +359,7 @@ depends on $d_e$.
 In our model, we define two different types of merge layers which we will
 describe below.
 
-The first instance of the merge layer is used as a baseline, and is a simple
+The first instance of the merge layer, $f_{m_1}$, is used as a baseline, and is a simple
 concatenation operation. We take the vector outputted by the LSTM-based encoder
 for the two input ASTs, and concatenate them into a single vector in
 $\mathbb{R}^{2d_e}$. In this case, we therefore have $n = 2d_e$.
@@ -379,7 +379,7 @@ the merge layer would output the following vector.
   \end{pmatrix}
 \end{equation}
 
-The second instance of the merge layer uses the combination of the angle and the
+The second instance of the merge layer, $f_{m_2}$, uses the combination of the angle and the
 distance of the two vectors described in~\cite{DBLP:journals/corr/TaiSM15}.
 Given $h_L$ the output of the encoder for the first code snippet and $h_R$ the
 output of the encoder for the second code snippet, the output $h$ of the merge
