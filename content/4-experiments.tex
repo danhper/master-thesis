@@ -6,6 +6,48 @@ Section~\ref{sec:token-generation-experiments} we will describe our experiments
 to generate token embedding. In both sections we will show what kind of data we
 used to train our model and how our model perform with different
 hyper-parameters.
+
+To run our experiments, we used the two machines shown in
+table~\ref{tab:machine-specs}. In table~\ref{tab:softwares}, we show the
+softwares we used to implement and run our machine-learning related experiments
+and the version we used.
+
+\begin{table}
+  \caption{\label{tab:machine-specs}Machines used for experiments}
+  \begin{center}
+    \begin{tabular}{r c c}
+      \toprule
+       & Machine 1 & Machine 2\\
+      \toprule
+      \textbf{CPU} & Intel i7-6850K & Intel Xeon E5-2637 v3\\
+      \textbf{CPU frequency} & 3.60GHz & 3.50GHz\\
+      \textbf{Cores count} & 6 & 8\\
+      \textbf{Threads count} & 12 & 16\\
+      \textbf{Memory} & 64GB & 512GB\\
+      \textbf{GPU} & Nvidia Quadro P6000 & Nvidia Tesla K40\\
+      \textbf{GPU memory} & 24GB & 16GB\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{table}
+%
+\begin{table}
+  \caption{\label{tab:softwares}Softwares used for experiments}
+  \begin{center}
+    \begin{tabular}{r c}
+      \toprule
+       Software & Version\\
+      \toprule
+      Linux & 4.14 / 4.4\\
+      CUDA & 8.0\\
+      cuDNN & 6.0\\
+      Python & 3.6.2\\
+      Tensorflow & 1.3.1\\
+      Keras & 2.1.2\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{table}
 \section{\label{sec:clone-detection-experiments}Code clone detection}
 To evaluate our clone detection model, we implemented the model we described
 in~\ref{sec:clone-detection}, we collected data of programs implementing the
