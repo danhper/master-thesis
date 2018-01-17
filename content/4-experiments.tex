@@ -57,13 +57,15 @@ figure~\ref{fig:files-per-problem-distribution}.
   \caption{\label{tab:clone-dataset-overview} Clone detection dataset overview}
   \begin{center}
     \begin{tabular}{c c}
+      \toprule
       Measure & Value\\
       \toprule
       Problems count & 576\\
       Avg. files / problem & 77\\
       Files count & 44620\\
       Lines count & 1270599\\
-      Tokens count & 8554476
+      Tokens count & 8554476\\
+      \bottomrule
     \end{tabular}
   \end{center}
 \end{table}
@@ -72,12 +74,14 @@ figure~\ref{fig:files-per-problem-distribution}.
   \caption{\label{tab:clone-dataset-languages} Clone detection dataset language overview}
   \begin{center}
     \begin{tabular}{c c c}
+      \toprule
       & Python & Java\\
       \toprule
       Avg. files / problem & 41 & 36\\
       Files count & 23792 & 20828\\
       Lines count & 312353 & 958246\\
-      Tokens count & 1810085 & 6744391
+      Tokens count & 1810085 & 6744391\\
+      \bottomrule
     \end{tabular}
   \end{center}
 \end{table}
@@ -300,12 +304,12 @@ when tested on the cross-validation set.
       \toprule
       $n$ & $|V|$ & $d_w$ & $d_e$ & $f_{e_b}$ & $d(f_p)$ & $f_t$ & $|S_n|$ & $L_w$ & $f_m$ & $\Delta S_n$\\
       \toprule
-      $1$ & $10000$ & $100$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $2$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{2.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $3$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{4.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $4$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $5$ & $-$ & $50$ & $\{30\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $6$ & $-$ & $50$ & $\{30\}$ & $f$ & $\{64\}$ & $f_{t_2}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $1$ & $10000$ & $100$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $2$ & $10000$ & $100$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $3$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.5,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $4$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{2.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $5$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $6$ & $-$ & $50$ & $\{30\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $1$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
       \bottomrule
     \end{tabularx}
   \end{center}
@@ -319,16 +323,54 @@ when tested on the cross-validation set.
       \toprule
       $n$ & F1-score & Precision & Recall & Accuracy\\
       \toprule
-      $1$ & $0.76$ & $0.67$ & $0.88$ & $0.89$\\
-      $2$ & $0.69$ & $0.56$ & $0.89$ & $0.84$\\
-      $3$ & $0.68$ & $0.64$ & $0.73$ & $0.86$\\
-      $4$ & $0.66$ & $0.53$ & $0.88$ & $0.82$\\
-      $5$ & $0.62$ & $0.51$ & $0.79$ & $0.80$\\
-      $6$ & $0.49$ & $0.35$ & $0.84$ & $0.65$\\
+      $1$ & $0.77$ & $0.67$ & $0.92$ & $0.89$\\
+      $2$ & $0.76$ & $0.67$ & $0.88$ & $0.89$\\
+      $3$ & $0.72$ & $0.64$ & $0.82$ & $0.87$\\
+      $4$ & $0.69$ & $0.56$ & $0.89$ & $0.84$\\
+      $5$ & $0.66$ & $0.53$ & $0.88$ & $0.82$\\
+      $6$ & $0.55$ & $0.39$ & $0.94$ & $0.69$\\
       \bottomrule
     \end{tabularx}
   \end{center}
 \end{table}
+
+In tables~\ref{tab:java-python-model-params}
+and~\ref{tab:java-java-model-params}, having $-$ in the $|V|$ column means that
+we did not use the values of the tokens, and we did not have to limit the size
+of the vocabulary as it was already small enough. Concretely, the vocabulary
+size was of $130$ for Python and of $75$ for Java.
+
+In general, our model gives us a high recall but does not manage to get a high
+precision, especially for the cross-language classification task. These results
+can be mitigated by trading recall for precision, but given the goal of our
+model to find possible duplicates across systems, we prefer to keep a high
+recall and leave the false-positive judgment to the developer. Furthermore, some
+source code which are actually not clones do look very similar, and can
+therefore be difficult to classify. For example, a code implementing Fibonacci
+and a code implementing factorial both contain a main for loop, which does some
+arithmetic operation and finally return an integer. Although the codes are not
+doing exactly the same thing, and are therefore not clones, they contain enough
+similarities to possibly be factorized, so the evaluation here could be a little
+pessimistic.
+
+From the hyper-parameters point of view, the main conclusion to draw from the
+results we obtained is that when we do not include the values of the tokens and
+try to train our model with only the types, the resulting model does not contain
+enough information to be able to correctly detect clones and we have a large
+drop in the precision score.
+Another conclusion that we can draw from our results is that increasing the size
+of the LSTM encoder improves the performance of the model. Especially for
+cross-language detection, where the detection task is more difficult, we get a
+considerable improvement by using a stacked LSTM instead of a simple one.
+On the other hand, using algorithm $f_{t_2}$, which performs two depth-first
+search, for transforming our ASTs into vectors yielded performance much worse
+that the simple $f_{t_1}$ which only perform a single one. We suspect that
+adding the result of the second depth-first search to the vector encoding added
+more noise to the encoded data that it added information, but a more formal
+conclusion about this result needs further investigation. We did not observe any
+significant improvement by changing the size of the output MLP classifier, and
+therefore concluded that the model performance was rather dependent on how we
+encode the AST into a vector rather the classification of the encoded vectors. 
 \section{\label{sec:token-generation-experiments}Token embedding generation}
 To generate token vector embedding and evaluate our results, we implemented the
 model and tools we described in Section~\ref{sec:token-representation}. All the
