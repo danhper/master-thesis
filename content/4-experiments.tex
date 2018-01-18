@@ -522,7 +522,10 @@ of this threshold.
 In table~\ref{tab:clone-detection-full-results}, we choose the results for each
 tool which we think might be the most useful for the tool user --- not
 necessarily the highest F1-score, but at least a good precision or recall ---
-and compare them.
+and compare them. In figure~\ref{fig:clone-detection-experiment}, we plot the
+precision-recall curve with the results of both our methods and SourcererCC. The
+x-axis is the recall and the y-axis is the precision, which means that we would
+like to maximize the area under the curve.
 
 \begin{table}
   \caption{\label{tab:clone-detection-full-results}Clone detection results comparison}
@@ -538,9 +541,15 @@ and compare them.
   \end{center}
 \end{table}
 
+\begin{figure}
+  \centering\includegraphics[width=14cm]{images/pr-curve.png}
+  \caption{\label{fig:clone-detection-experiment}Precision-recall curve
+    for clone detection experiment}
+\end{figure}
+
 Our method and SourcererCC have very different characteristics and are therefore
 difficult to actually compare --- our method has a very high recall but a poor
-precision, while SourcererCC has a good precision but a very low recall. We will
+precision, while SourcererCC has a good precision but a low recall. We will
 here try to give some explanation about the results we obtained. Our dataset is
 mostly composed of types IV clones, with probably only a very small amount of
 clones which would enter the type III clone category. SourcererCC is a
