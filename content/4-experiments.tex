@@ -413,6 +413,170 @@ conclusion about this result needs further investigation. We did not observe any
 significant improvement by changing the size of the output MLP classifier, and
 therefore concluded that the model performance was rather dependent on how we
 encode the AST into a vector rather the classification of the encoded vectors. 
+\subsection{Comparison with existing methods}
+We chose to compare our method to
+SourcerCC\cite{Sajnani:2016:SSC:2884781.2884877}, as it is the tool published
+the most recently with its source code publicly available. In the above
+experiment, we sampled 4 non-clones code pairs for each clone pair when
+evaluating our model. However, clone detection tools normally do not work by
+taking code pairs but search for clones in a set of code fragments. As we
+discuss in Section~\ref{sec:future-work}, our tool LearnerCC currently only
+works by taking code fragments pairs as input, and we therefore need to run
+$\mathcal{O}\left( n^2 \right)$ comparisons to detect clones in the same way as
+the tool we are comparing our results to.
+
+To run our experiment, we used the files from our test dataset, and run
+our tools using all the pairs combinations, as well as SourcererCC on the
+sampled files to detect clones within these files.
+
+We will first describe the steps and settings we used to run the experiment
+using our model. To run the experiment, we select the model which performed
+the best in the above experiment according to the results presented in
+table~\ref{tab:java-java-model-results}. We generate all the possible code
+pairs of the files in our test set, and use our model to predict whether each
+of these pairs were clones or not. Using our predictions, which are
+probability-like values between $0$ and $1$, we set multiple thresholds to
+whether the clone pair is a code clone are not. If the threshold is closer to
+$0$, we accept pairs that are less likely to be clones and therefore trade
+precision for recall, on the other hand if the threshold is closer to $0.9$, we
+are stricter for which pairs to accept and therefore trade recall for precision.
+We try a range of values for this threshold and compute the F1-score, precision
+and recall for each of them. We show our results in
+table~\ref{tab:clone-detection-results}.
+
+\begin{table}
+  \caption{\label{tab:clone-detection-results}Clone detection results}
+  \begin{center}
+    \begin{tabular}{c c c c}
+      \toprule
+      Threshold & F1-score & Precision & Recall\\
+      \toprule
+      $0.1$ & $0.13$ & $0.07$ & $0.98$\\
+      $0.2$ & $0.15$ & $0.08$ & $0.97$\\
+      $0.3$ & $0.17$ & $0.09$ & $0.95$\\
+      $0.4$ & $0.18$ & $0.10$ & $0.92$\\
+      $0.5$ & $0.19$ & $0.11$ & $0.89$\\
+      \rowcolor{verylightgray} $0.6$ & $0.21$ & $0.12$ & $0.85$\\
+      \rowcolor{verylightgray} $0.7$ & $0.22$ & $0.13$ & $0.77$\\
+      \rowcolor{verylightgray} $0.8$ & $0.24$ & $0.14$ & $0.63$\\
+      $0.9$ & $0.22$ & $0.16$ & $0.33$\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{table}
+
+After running the experiment with our model, we use the same dataset to run the
+experiment with SourcererCC.
+We show the parameters we used to run SourcererCC, which are the defaults at the
+time of the experiment, in table~\ref{tab:sourcerer-cc-params}.
+
+\begin{table}
+  \caption{\label{tab:sourcerer-cc-params}SourcererCC settings}
+  \begin{center}
+  \begin{tabularx}{0.4\textwidth}{R R}
+    \toprule
+    Parameter & Value\\
+    \toprule
+    \lstinline{MIN_TOKENS} & $65$\\
+    \lstinline{MAX_TOKENS} & $500000$\\
+    \lstinline{BTSQ_THREADS} & $4$\\
+    \lstinline{BTIIQ_THREADS} & $4$\\
+    \lstinline{QLQ_THREADS} & $4$\\
+    \lstinline{QBQ_THREADS} & $4$\\
+    \lstinline{QCQ_THREADS} & $4$\\
+    \lstinline{VCQ_THREADS} & $16$\\
+    \lstinline{RCQ_THREADS} & $4$\\
+    \bottomrule
+  \end{tabularx}
+  \end{center}
+\end{table}
+
+SourcererCC uses a threshold to decide whether it considers two code fragments
+to be clones or not. If the value of the threshold is $0.5$, it means that at
+least 50\% of the tokens must be shared between the code fragments to be
+considered as clones. The higher the threshold, the more the code fragments need
+to be similar to be considered as clones, therefore when the threshold becomes
+higher, the precision increases and the recalls drop. We show in
+table~\ref{tab:sourcerer-cc-results} the values we obtained for different values
+of this threshold.
+
+\begin{table}
+  \caption{\label{tab:sourcerer-cc-results}SourcererCC clone detection results}
+  \begin{center}
+    \begin{tabular}{c c c c}
+      \toprule
+      Threshold & F1-score & Precision & Recall\\
+      \toprule
+      $0.3$ & $0.05$ & $0.03$ & $0.29$\\
+      $0.4$ & $0.08$ & $0.05$ & $0.24$\\
+      \rowcolor{verylightgray} $0.5$ & $0.12$ & $0.10$ & $0.15$\\
+      $0.6$ & $0.11$ & $0.24$ & $0.07$\\
+      $0.7$ & $0.05$ & $0.63$ & $0.03$\\
+      $0.8$ & $0.02$ & $0.79$ & $0.01$\\
+      $0.9$ & $0.01$ & $1.00$ & $0.00$\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{table}
+
+In table~\ref{tab:clone-detection-full-results}, we choose the results for each
+tool which we think might be the most useful for the tool user --- not
+necessarily the highest F1-score, but at least a good precision or recall ---
+and compare them.
+
+\begin{table}
+  \caption{\label{tab:clone-detection-full-results}Clone detection results comparison}
+  \begin{center}
+    \begin{tabular}{c c c c}
+      \toprule
+       & F1-score & Precision & Recall\\
+      \toprule
+      Our method & $0.21$ & $0.12$ & $0.85$\\
+      SourcererCC & $0.05$ & $0.63$ & $0.03$\\
+      \bottomrule
+    \end{tabular}
+  \end{center}
+\end{table}
+
+Our method and SourcererCC have very different characteristics and are therefore
+difficult to actually compare --- our method has a very high recall but a poor
+precision, while SourcererCC has a good precision but a very low recall. We will
+here try to give some explanation about the results we obtained. Our dataset is
+mostly composed of types IV clones, with probably only a very small amount of
+clones which would enter the type III clone category. SourcererCC is a
+token-based clone detection tool and is mostly design to detect type III clones,
+and given the nature of its algorithm should be particularly efficient for
+clones generated from copy-pasting. We believe that the poor results of
+SourecererCC on this dataset comes from its nature --- clones in the dataset
+being introduced by different programmers implementing the same functionality,
+which generate very different types of clones. We think that the poor precision
+results with our approach comes from two different factors. The main important
+cause for this issue is that our tool is currently only able to predict if two
+code fragment are clones are not, and to be able to run this experiment, we
+therefore need to predict $\mathcal{O}\left( n^2 \right)$ samples. The amount of
+clones in these samples is therefore less than 1\%, which vastly lower than the
+20\% of clones we were using when training the model. This change in the
+training and test distributions therefore tends to wrongly predict two code
+pairs to be code clones. We describe more in detail in
+Section~\ref{sec:future-work} a possible approach around this issue. Another
+reason for the precision to be low is the nature of clone detection itself. We
+currently mark two code fragments as clones only if they implement the exact
+same functionality. However, some code pairs can have a very close structure,
+which would make them good candidates for clones, but do not implement the same
+functionality. We show such an example in listings~\ref{lis:wrong-clone}. Both
+code read an integer from the standard input, declare other integers, execute
+some simple arithmetic operations on the declared integer and finally output the
+the result. Both codes are therefore doing something quite similar, but do not
+enter in our current definition of code clones. However, the code fragments are
+similar enough to be predicted as clones by our model, which lowers the
+precision we obtain.
+\begin{figure}
+  % src/b/40/1/1068576.java
+  \lstinputlisting[basicstyle=\ttfamily\footnotesize]{./snippets/WrongClone1.java}
+  % src/b/56/2/1172809.java
+  \lstinputlisting[label=lis:wrong-clone,caption=Structurally close code pair
+  classified as clones,basicstyle=\ttfamily\footnotesize]{./snippets/WrongClone2.java}
+\end{figure}
 \section{\label{sec:token-generation-experiments}Token embedding generation}
 To generate token vector embedding and evaluate our results, we implemented the
 model and tools we described in Section~\ref{sec:token-representation}. All the
