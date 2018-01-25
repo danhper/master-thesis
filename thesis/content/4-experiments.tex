@@ -775,8 +775,8 @@ with types only.
       \toprule
       Parameter & Vocab without values & Vocab with values\\
       \toprule
-      \lstinline{ancestors_window_size} & $2$ & $3$\\
-      \lstinline{descendants_window_size} & $1$ & $2$\\
+      \lstinline{ancestors_window_size} & $2$ & $2$\\
+      \lstinline{descendants_window_size} & $1$ & $1$\\
       \lstinline{include_siblings} & \lstinline{false} & \lstinline{false}\\
       \lstinline{embeddings_size} & $50$ & $100$\\
       \bottomrule
@@ -784,14 +784,10 @@ with types only.
   \end{center}
 \end{table}
 
-Given the variety of tokens is much larger when we include the values of the
-tokens, the need for a larger window is logical, as the number of contexts in
-which a single token could appear is much larger. However, increasing the window
-size too much seems to create too much noise, and did not yield better results.
-Likewise, we suspect that including the siblings generated more noise than
-signal when training our model.
-
-In figure~\ref{fig:python-embeddings} and~\ref{fig:java-embeddings}, we show the
+Increasing the window size too much seems to create too much noise, and did not
+yield better results. Likewise, we suspect that including the siblings generated
+more noise than signal when training our model. In
+figure~\ref{fig:python-embeddings} and~\ref{fig:java-embeddings}, we show the
 results we obtained when projecting the trained embeddings in a 2 dimensions
 space using PCA\cite{DBLP:journals/corr/Shlens14}. We only plotted a subset of
 the points in the vocabulary to keep the figure readable.
