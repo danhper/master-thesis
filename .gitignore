@@ -228,5 +228,6 @@ auto/*
 
 # End of https://www.gitignore.io/api/latex
 
-/build/
-/resume/resume.pdf
+/thesis/build/
+/resume/*.pdf
+/slides/*.pdf
