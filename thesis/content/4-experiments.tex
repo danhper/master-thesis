@@ -179,7 +179,7 @@ table~\ref{tab:hyper-parameters}.
       the AST into a vector as described in~\ref{sssec:ast-transformer} & \lstinline{DFSTransformer}\\
       \lstinline{vocabulary} & & The path to the extracted vocabulary & \lstinline{vocab.tsv}\\
       \lstinline{vocabulary_size} & $|V|$ & The size of the vocabulary & $500$\\
-      \lstinline{embeddings} & & The path to the trained token embedding. If
+      \lstinline{embeddings} & $w$ & The path to the trained token embedding. If
       this parameter is not provided, embedding are randomly initialized & \lstinline{embeddings.pickle}\\
       \lstinline{embeddings_dimension} & $d_w$ & Dimension of the embedding for
       target language & $100$\\
@@ -306,14 +306,13 @@ when tested on the cross-validation set.
   \begin{center}
     \begin{tabularx}{\linewidth}{c Y c Y c Y c c Y Y c c}
       \toprule
-      $n$ & $|V|$ & $d_w$ & $d_e$ & $f_{e_b}$ & $d(f_p)$ & $f_t$ & $|S_n|$ & $L_w$ & $f_m$ & $\Delta S_n$\\
+      $n$ & $|V|$ & $w$ & $d_w$ & $d_e$ & $f_{e_b}$ & $d(f_p)$ & $f_t$ & $|S_n|$ & $L_w$ & $f_m$ & $\Delta S_n$\\
       \toprule
-      $1$ & $10000$ & $100$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $2$ & $10000$ & $100$ & $\{50,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $3$ & $10000$ & $100$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $4$ & $-$ & $50$ & $\{50\}$ & $t$ & $\{64,64\}$ & $f_{t_1}$ & $2$ & $\{1.0,1.0\}$ & $f_{m_1}$ & $-$\\
-      $5$ & $-$ & $50$ & $\{50\}$ & $t$ & $\{64,64\}$ & $f_{t_1}$ & $1$ & $\{1.0,1.0\}$ & $f_{m_1}$ & $-$\\
-      $6$ & $-$ & $50$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $1$ & $10000$ & $p$ & $100$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $2$ & $10000$ & $p$ & $100$ & $\{50,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $3$ & $10000$ & $r$ & $100$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $4$ & $10000$ & $p$ & $100$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $5$ & $-$ & $p$ & $50$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{2.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
       \bottomrule
     \end{tabularx}
   \end{center}
@@ -329,10 +328,9 @@ when tested on the cross-validation set.
       \toprule
       $1$ & $0.66$ & $0.55$ & $0.83$ & $0.83$\\
       $2$ & $0.63$ & $0.51$ & $0.80$ & $0.80$\\
-      $3$ & $0.56$ & $0.42$ & $0.82$ & $0.73$\\
-      $4$ & $0.55$ & $0.40$ & $0.84$ & $0.71$\\
-      $5$ & $0.52$ & $0.38$ & $0.84$ & $0.68$\\
-      $6$ & $0.49$ & $0.35$ & $0.80$ & $0.66$\\
+      $3$ & $0.61$ & $0.49$ & $0.82$ & $0.79$\\
+      $4$ & $0.56$ & $0.42$ & $0.82$ & $0.73$\\
+      $5$ & $0.51$ & $0.40$ & $0.71$ & $0.73$\\
       \bottomrule
     \end{tabularx}
   \end{center}
@@ -344,14 +342,13 @@ when tested on the cross-validation set.
   \begin{center}
     \begin{tabularx}{\linewidth}{c Y c Y c Y c c Y Y c c}
       \toprule
-      $n$ & $|V|$ & $d_w$ & $d_e$ & $f_{e_b}$ & $d(f_p)$ & $f_t$ & $|S_n|$ & $L_w$ & $f_m$ & $\Delta S_n$\\
+      $n$ & $|V|$ & $w$ & $d_w$ & $d_e$ & $f_{e_b}$ & $d(f_p)$ & $f_t$ & $|S_n|$ & $L_w$ & $f_m$ & $\Delta S_n$\\
       \toprule
-      $1$ & $10000$ & $100$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $2$ & $10000$ & $100$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $3$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.5,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $4$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{2.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $5$ & $10000$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
-      $6$ & $-$ & $50$ & $\{30\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $1$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $1$ & $10000$ & $p$ & $100$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $2$ & $10000$ & $p$ & $100$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $3$ & $10000$ & $r$ & $100$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $4$ & $10000$ & $p$ & $30$ & $\{50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.5,1.0\}$ & $f_{m_2}$ & $0.2$\\
+      $5$ & $-$ & $p$ & $50$ & $\{100,50\}$ & $t$ & $\{64\}$ & $f_{t_1}$ & $4$ & $\{1.0,1.0\}$ & $f_{m_2}$ & $0.2$\\
       \bottomrule
     \end{tabularx}
   \end{center}
@@ -367,10 +364,9 @@ when tested on the cross-validation set.
       \toprule
       $1$ & $0.77$ & $0.67$ & $0.92$ & $0.89$\\
       $2$ & $0.76$ & $0.67$ & $0.88$ & $0.89$\\
-      $3$ & $0.72$ & $0.64$ & $0.82$ & $0.87$\\
-      $4$ & $0.69$ & $0.56$ & $0.89$ & $0.84$\\
-      $5$ & $0.66$ & $0.53$ & $0.88$ & $0.82$\\
-      $6$ & $0.55$ & $0.39$ & $0.94$ & $0.69$\\
+      $3$ & $0.74$ & $0.65$ & $0.85$ & $0.88$\\
+      $4$ & $0.72$ & $0.64$ & $0.82$ & $0.87$\\
+      $5$ & $0.69$ & $0.56$ & $0.90$ & $0.84$\\
       \bottomrule
     \end{tabularx}
   \end{center}
@@ -381,6 +377,9 @@ and~\ref{tab:java-java-model-params}, having $-$ in the $|V|$ column means that
 we did not use the values of the tokens, and we did not have to limit the size
 of the vocabulary as it was already small enough. Concretely, the vocabulary
 size was of $130$ for Python and of $75$ for Java.
+The $w$ column shows what embeddings have been used when training the model.
+$p$ means that pre-trained embeddings have been used, while $r$ means that
+embeddings have been initialized randomly.
 
 In general, our model gives us a high recall but does not manage to get a high
 precision, especially for the cross-language classification task. These results
@@ -399,7 +398,15 @@ From the hyper-parameters point of view, the main conclusion to draw from the
 results we obtained is that when we do not include the values of the tokens and
 try to train our model with only the types, the resulting model does not contain
 enough information to be able to correctly detect clones and we have a large
-drop in the precision score.
+drop in the precision score. However, especially for the single-language cross
+detection, the precision is still promising, showing that the model somehow
+manages to encode the structure of the AST and is not only mapping identifiers.
+
+We can also see from these results that our pre-trained embeddings gives us a
+performance improvement compared to randomly initialized embeddings, especially
+in the task of cross-language clone detection where finding a relation between
+different tokens is harder for the model.
+
 Another conclusion that we can draw from our results is that increasing the size
 of the LSTM encoder improves the performance of the model. Especially for
 cross-language detection, where the detection task is more difficult, we get a
